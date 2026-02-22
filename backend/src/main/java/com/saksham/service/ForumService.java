@@ -16,14 +16,31 @@ public class ForumService {
         this.postRepository = postRepository;
     }
 
+    private boolean containsBadWords(String content) {
+        String[] bannedWords = { "badword1", "badword2", "hate", "abuse" };
+
+        for (String word : bannedWords) {
+            if (content.toLowerCase().contains(word)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Create Post
     public Post createPost(Post post) {
+        if (containsBadWords(post.getContent())) {
+            throw new RuntimeException("Post contains inappropriate content");
+        }
         post.setCreatedAt(LocalDateTime.now());
         return postRepository.save(post);
     }
 
     // Get all posts
     public List<Post> getAllPosts() {
-        return postRepository.findAll();
-    }
+    return postRepository.findAll()
+            .stream()
+            .filter(post -> !post.isHidden())
+            .toList();
+}
 }
