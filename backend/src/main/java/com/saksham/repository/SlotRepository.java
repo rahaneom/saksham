@@ -10,4 +10,5 @@ import java.util.UUID;
 public interface SlotRepository extends JpaRepository<Slot, UUID> {
 
     List<Slot> findByIsAvailableTrueAndSlotDate(LocalDate slotDate);
+    boolean existsBySlotDate(LocalDate slotDate);
 }
