@@ -2,6 +2,8 @@ package com.saksham.service;
 
 import com.saksham.dto.BookingResponse;
 import com.saksham.dto.CounsellorAppointmentResponse;
+import com.saksham.dto.SlotDisplayResponse;
+import com.saksham.dto.SlotResponse;
 import com.saksham.dto.StudentAppointmentResponse;
 import com.saksham.entity.*;
 import com.saksham.repository.*;
@@ -25,55 +27,49 @@ public class AppointmentService {
     @Transactional
     public Appointment bookAppointment(UUID studentId, UUID slotId) {
 
-        // 1️⃣ Fetch student
         User student = userRepository.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        if (!student.getRole().equals(Role.ROLE_STUDENT)) {
+        // 🔐 ROLE CHECK
+        if (student.getRole() != Role.ROLE_STUDENT) {
             throw new RuntimeException("Only students can book appointments");
         }
 
-        // 2️⃣ Fetch slot
         Slot slot = slotRepository.findById(slotId)
                 .orElseThrow(() -> new RuntimeException("Slot not found"));
 
-        // 🚫 Booking allowed only for tomorrow
         if (!slot.getSlotDate().equals(LocalDate.now().plusDays(1))) {
             throw new RuntimeException("Booking allowed only for tomorrow");
         }
 
-        // ❌ Prevent multiple bookings per day per student
         boolean alreadyBooked = appointmentRepository
                 .existsByStudent_IdAndSlot_SlotDateAndStatus(
                         studentId,
                         slot.getSlotDate(),
-                        "BOOKED"
+                        AppointmentStatus.BOOKED
                 );
 
         if (alreadyBooked) {
             throw new RuntimeException("You already have an appointment for this day");
         }
 
-        // 3️⃣ Check slot availability
         if (!slot.isAvailable()) {
             throw new RuntimeException("Slot already booked");
         }
 
-        // 4️⃣ Lock slot
         slot.setAvailable(false);
         slotRepository.save(slot);
 
-        // 5️⃣ Create appointment
         Appointment appointment = Appointment.builder()
                 .student(student)
                 .slot(slot)
-                .status("BOOKED")
+                .status(AppointmentStatus.BOOKED)
                 .build();
 
         return appointmentRepository.save(appointment);
     }
 
-    // 🔵 Booking response (safe DTO)
+    // 🔵 Booking response
     public BookingResponse bookAppointmentResponse(UUID studentId, UUID slotId) {
 
         Appointment appointment = bookAppointment(studentId, slotId);
@@ -83,7 +79,7 @@ public class AppointmentService {
                 appointment.getSlot().getSlotDate(),
                 appointment.getSlot().getStartTime(),
                 appointment.getSlot().getEndTime(),
-                appointment.getStatus()
+                appointment.getStatus().toString()
         );
     }
 
@@ -95,13 +91,22 @@ public class AppointmentService {
                         a.getSlot().getSlotDate(),
                         a.getSlot().getStartTime(),
                         a.getSlot().getEndTime(),
-                        a.getStatus()
+                        a.getStatus().toString()
                 ))
                 .toList();
     }
 
     // 🔵 Counsellor Dashboard
-    public List<CounsellorAppointmentResponse> getAllAppointmentsForCounsellor() {
+    public List<CounsellorAppointmentResponse> getAllAppointmentsForCounsellor(UUID counsellorId) {
+
+        User counsellor = userRepository.findById(counsellorId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 🔐 ROLE CHECK
+        if (counsellor.getRole() != Role.ROLE_COUNSELLOR) {
+            throw new RuntimeException("Only counsellor can view all appointments");
+        }
+
         return appointmentRepository.findAll().stream()
                 .map(a -> new CounsellorAppointmentResponse(
                         a.getStudent().getName(),
@@ -110,21 +115,51 @@ public class AppointmentService {
                         a.getSlot().getSlotDate(),
                         a.getSlot().getStartTime(),
                         a.getSlot().getEndTime(),
-                        a.getStatus()
+                        a.getStatus().toString()
                 ))
                 .toList();
     }
 
     // 🔵 Tomorrow Available Slots
-    public List<Slot> getTomorrowAvailableSlots() {
-        return slotRepository.findByIsAvailableTrueAndSlotDate(
-                LocalDate.now().plusDays(1)
-        );
+    public List<SlotResponse> getTomorrowAvailableSlots() {
+        return slotRepository
+                .findByIsAvailableTrueAndSlotDate(LocalDate.now().plusDays(1))
+                .stream()
+                .map(slot -> new SlotResponse(
+                        slot.getId(),
+                        slot.getSlotDate(),
+                        slot.getStartTime(),
+                        slot.getEndTime()
+                ))
+                .toList();
+    }
+
+    // 🔵 All Tomorrow Slots (UI)
+    public List<SlotDisplayResponse> getAllTomorrowSlotsForUI() {
+        return slotRepository
+                .findBySlotDate(LocalDate.now().plusDays(1))
+                .stream()
+                .map(slot -> new SlotDisplayResponse(
+                        slot.getId(),
+                        slot.getSlotDate(),
+                        slot.getStartTime(),
+                        slot.getEndTime(),
+                        slot.isAvailable()
+                ))
+                .toList();
     }
 
     // 🔵 Cancel Appointment
     @Transactional
     public void cancelAppointment(UUID appointmentId, UUID studentId) {
+
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 🔐 ROLE CHECK
+        if (student.getRole() != Role.ROLE_STUDENT) {
+            throw new RuntimeException("Only students can cancel appointments");
+        }
 
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
@@ -133,11 +168,15 @@ public class AppointmentService {
             throw new RuntimeException("Unauthorized cancellation");
         }
 
-        if ("CANCELLED".equals(appointment.getStatus())) {
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
+            throw new RuntimeException("Completed appointment cannot be cancelled");
+        }
+
+        if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
             throw new RuntimeException("Appointment already cancelled");
         }
 
-        appointment.setStatus("CANCELLED");
+        appointment.setStatus(AppointmentStatus.CANCELLED);
 
         Slot slot = appointment.getSlot();
         slot.setAvailable(true);
@@ -146,20 +185,26 @@ public class AppointmentService {
         appointmentRepository.save(appointment);
     }
 
+    // 🔵 Mark Appointment Completed
     @Transactional
-    public void markAppointmentCompleted(UUID appointmentId) {
+    public void markAppointmentCompleted(UUID appointmentId, UUID counsellorId) {
+
+        User counsellor = userRepository.findById(counsellorId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 🔐 ROLE CHECK
+        if (counsellor.getRole() != Role.ROLE_COUNSELLOR) {
+            throw new RuntimeException("Only counsellor can complete appointment");
+        }
 
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
-        // Only BOOKED appointments can be completed
-        if (!"BOOKED".equals(appointment.getStatus())) {
+        if (appointment.getStatus() != AppointmentStatus.BOOKED) {
             throw new RuntimeException("Only booked appointments can be completed");
         }
 
-        // Mark completed
-        appointment.setStatus("COMPLETED");
-
+        appointment.setStatus(AppointmentStatus.COMPLETED);
         appointmentRepository.save(appointment);
     }
 }

@@ -1,6 +1,8 @@
 package com.saksham.repository;
 
 import com.saksham.entity.Appointment;
+import com.saksham.entity.AppointmentStatus;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
@@ -13,6 +15,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
     boolean existsByStudent_IdAndSlot_SlotDateAndStatus(
         UUID studentId,
         LocalDate slotDate,
-        String status
+        AppointmentStatus status
 );
 }

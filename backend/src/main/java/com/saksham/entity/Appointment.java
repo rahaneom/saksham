@@ -29,8 +29,9 @@ public class Appointment {
     @JoinColumn(name = "slot_id", nullable = false)
     private Slot slot;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status; // BOOKED / CANCELLED / COMPLETED
+    private AppointmentStatus status;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

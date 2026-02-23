@@ -2,6 +2,8 @@ package com.saksham.controller;
 
 import com.saksham.dto.BookingResponse;
 import com.saksham.dto.CounsellorAppointmentResponse;
+import com.saksham.dto.SlotDisplayResponse;
+import com.saksham.dto.SlotResponse;
 import com.saksham.dto.StudentAppointmentResponse;
 import com.saksham.entity.Appointment;
 import com.saksham.entity.Slot;
@@ -43,17 +45,27 @@ public ResponseEntity<BookingResponse> bookAppointment(
 
     // 🔵 Counsellor Dashboard
     @GetMapping("/counsellor")
-    public ResponseEntity<List<CounsellorAppointmentResponse>> getAllAppointments() {
+    public ResponseEntity<List<CounsellorAppointmentResponse>> getAllAppointments(
+            @RequestParam UUID counsellorId
+    ) {
         return ResponseEntity.ok(
-                appointmentService.getAllAppointmentsForCounsellor()
+                appointmentService.getAllAppointmentsForCounsellor(counsellorId)
         );
     }
 
     // 🔵 Tomorrow Available Slots
     @GetMapping("/slots/tomorrow")
-    public ResponseEntity<List<Slot>> getTomorrowSlots() {
+    public ResponseEntity<List<SlotResponse>> getTomorrowSlots() {
         return ResponseEntity.ok(
                 appointmentService.getTomorrowAvailableSlots()
+        );
+    }
+
+    // 🔵 All Tomorrow Slots for UI (including booked ones)
+    @GetMapping("/slots/tomorrow/all")
+    public ResponseEntity<List<SlotDisplayResponse>> getAllTomorrowSlots() {
+        return ResponseEntity.ok(
+                appointmentService.getAllTomorrowSlotsForUI()
         );
     }
 
@@ -69,9 +81,10 @@ public ResponseEntity<BookingResponse> bookAppointment(
 
     @PutMapping("/complete")
     public ResponseEntity<String> completeAppointment(
-            @RequestParam UUID appointmentId
+            @RequestParam UUID appointmentId,
+            @RequestParam UUID counsellorId
     ) {
-        appointmentService.markAppointmentCompleted(appointmentId);
+        appointmentService.markAppointmentCompleted(appointmentId, counsellorId);
         return ResponseEntity.ok("Appointment marked as completed");
     }
 }
