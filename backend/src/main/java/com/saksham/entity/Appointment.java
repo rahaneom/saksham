@@ -25,8 +25,8 @@ public class Appointment {
     private User student;
 
     // One slot can have only one appointment
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "slot_id", nullable = false, unique = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "slot_id", nullable = false)
     private Slot slot;
 
     @Column(nullable = false)

@@ -11,4 +11,5 @@ public interface SlotRepository extends JpaRepository<Slot, UUID> {
 
     List<Slot> findByIsAvailableTrueAndSlotDate(LocalDate slotDate);
     boolean existsBySlotDate(LocalDate slotDate);
+    void deleteByIsAvailableTrueAndSlotDateBefore(LocalDate date);
 }

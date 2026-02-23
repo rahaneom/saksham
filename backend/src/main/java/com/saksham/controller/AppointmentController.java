@@ -66,4 +66,12 @@ public ResponseEntity<BookingResponse> bookAppointment(
         appointmentService.cancelAppointment(appointmentId, studentId);
         return ResponseEntity.ok("Appointment cancelled successfully");
     }
+
+    @PutMapping("/complete")
+    public ResponseEntity<String> completeAppointment(
+            @RequestParam UUID appointmentId
+    ) {
+        appointmentService.markAppointmentCompleted(appointmentId);
+        return ResponseEntity.ok("Appointment marked as completed");
+    }
 }
