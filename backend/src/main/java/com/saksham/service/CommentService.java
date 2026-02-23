@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.saksham.entity.Comment;
 import com.saksham.entity.Post;
+import com.saksham.entity.User;
 import com.saksham.repository.CommentRepository;
 import com.saksham.repository.PostRepository;
 
@@ -16,14 +17,17 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final UserService userService; // NEW
 
     public CommentService(CommentRepository commentRepository,
-            PostRepository postRepository) {
+                          PostRepository postRepository,
+                          UserService userService) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
+        this.userService = userService;
     }
 
-    // same moderation as posts
+    // Moderation
     private boolean containsBadWords(String content) {
         String[] bannedWords = { "badword1", "badword2", "hate", "abuse" };
 
@@ -35,7 +39,7 @@ public class CommentService {
         return false;
     }
 
-    // Add comment to a post
+    // ADD COMMENT WITH USER
     public Comment addComment(UUID postId, String content) {
 
         if (containsBadWords(content)) {
@@ -45,19 +49,20 @@ public class CommentService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
+        // JWT USER
+        User user = userService.getCurrentUser();
+
         Comment comment = new Comment();
         comment.setContent(content);
         comment.setCreatedAt(LocalDateTime.now());
         comment.setPost(post);
+        comment.setUser(user); // IMPORTANT
 
         return commentRepository.save(comment);
     }
 
-    // Get comments for a post (hide flagged)
+    // FETCH ONLY NON-HIDDEN COMMENTS
     public List<Comment> getCommentsByPost(UUID postId) {
-        return commentRepository.findByPostId(postId)
-                .stream()
-                .filter(comment -> !comment.isHidden())
-                .toList();
+        return commentRepository.findByPostIdAndIsHiddenFalse(postId);
     }
 }

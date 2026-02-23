@@ -40,7 +40,7 @@ public class CommentController {
         }
     }
 
-    // GET COMMENTS FOR A POST
+    // GET COMMENTS
     @GetMapping("/{postId}")
     public List<Comment> getComments(@PathVariable UUID postId) {
         return commentService.getCommentsByPost(postId);
