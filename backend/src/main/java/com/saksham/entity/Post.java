@@ -57,6 +57,18 @@ public class Post {
         this.tag = tag;
     }
 
+    public void setLikesCount(int likesCount) {
+        this.likesCount = likesCount;
+    }
+
+    public void setReportCount(int reportCount) {
+        this.reportCount = reportCount;
+    }
+
+    public void setHidden(boolean hidden) {
+        isHidden = hidden;
+    }
+
     public boolean isAnonymous() {
         return isAnonymous;
     }

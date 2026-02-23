@@ -38,9 +38,35 @@ public class ForumService {
 
     // Get all posts
     public List<Post> getAllPosts() {
-    return postRepository.findAll()
-            .stream()
-            .filter(post -> !post.isHidden())
-            .toList();
-}
+        return postRepository.findAll()
+                .stream()
+                .filter(post -> !post.isHidden())
+                .toList();
+    }
+
+    // Like a post
+    public Post likePost(java.util.UUID postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        post.setLikesCount(post.getLikesCount() + 1);
+
+        return postRepository.save(post);
+    }
+
+    // Report a post
+    public Post reportPost(java.util.UUID postId) {
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        post.setReportCount(post.getReportCount() + 1);
+
+        // Auto-hide logic
+        if (post.getReportCount() >= 3) {
+            post.setHidden(true);
+        }
+
+        return postRepository.save(post);
+    }
 }
