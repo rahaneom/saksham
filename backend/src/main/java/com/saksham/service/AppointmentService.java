@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,8 +39,19 @@ public class AppointmentService {
         Slot slot = slotRepository.findById(slotId)
                 .orElseThrow(() -> new RuntimeException("Slot not found"));
 
-        if (!slot.getSlotDate().equals(LocalDate.now().plusDays(1))) {
-            throw new RuntimeException("Booking allowed only for tomorrow");
+        // if (!slot.getSlotDate().equals(LocalDate.now().plusDays(1))) {
+        //     throw new RuntimeException("Booking allowed only for tomorrow");
+        // }
+        LocalDateTime slotStartDateTime =
+        LocalDateTime.of(slot.getSlotDate(), slot.getStartTime());
+
+        LocalDateTime bookingCutoff =
+                slotStartDateTime.minusHours(1);
+
+        if (LocalDateTime.now().isAfter(bookingCutoff)) {
+            throw new RuntimeException(
+                "Booking not allowed within 1 hour of slot start time"
+            );
         }
 
         boolean alreadyBooked = appointmentRepository
