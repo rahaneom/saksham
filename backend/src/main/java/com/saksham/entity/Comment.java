@@ -74,7 +74,6 @@ public class Comment {
         this.post = post;
     }
 
-    // NEW
     public User getUser() {
         return user;
     }

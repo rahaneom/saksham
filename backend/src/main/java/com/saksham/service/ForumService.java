@@ -48,9 +48,12 @@ public class ForumService {
         if (containsBadWords(post.getContent())) {
             throw new RuntimeException("Post contains inappropriate content");
         }
+
+        User user = userService.getCurrentUser(); // IMPORTANT
+
+        post.setUser(user); // LINK USER
         post.setCreatedAt(LocalDateTime.now());
 
-        userService.getCurrentUser();
         return postRepository.save(post);
     }
 
@@ -66,6 +69,9 @@ public class ForumService {
     public Post likePost(UUID postId) {
         User user = userService.getCurrentUser();
 
+        if (!user.getRole().name().equals("ROLE_STUDENT")) {
+            throw new RuntimeException("Only students can perform this action");
+        }
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
@@ -79,7 +85,7 @@ public class ForumService {
         likeRepository.save(like);
 
         // Increment count
-        post.setLikesCount(post.getLikesCount() + 1);
+        post.setLikesCount((int) likeRepository.countByPost(post));
 
         return postRepository.save(post);
     }
@@ -89,10 +95,13 @@ public class ForumService {
 
         User user = userService.getCurrentUser();
 
+        if (!user.getRole().name().equals("ROLE_STUDENT")) {
+            throw new RuntimeException("Only students can perform this action");
+        }
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        // Check if already reported
+        // Prevent duplicate report
         if (reportRepository.findByUserAndPost(user, post).isPresent()) {
             throw new RuntimeException("You already reported this post");
         }
@@ -101,14 +110,60 @@ public class ForumService {
         Report report = new Report(user, post);
         reportRepository.save(report);
 
-        // Increment count
-        post.setReportCount(post.getReportCount() + 1);
+        // Correct count from DB
+        long reportCount = reportRepository.countByPost(post);
+        post.setReportCount((int) reportCount);
 
-        // Auto-hide logic
-        if (post.getReportCount() >= 3) {
+        // Auto-hide
+        if (reportCount >= 3) {
             post.setHidden(true);
         }
 
         return postRepository.save(post);
+    }
+
+    public Post editPost(UUID postId, String newContent) {
+
+        User user = userService.getCurrentUser();
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        // Ownership check
+        if (post.getUser() == null || !post.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You can only edit your own post");
+        }
+
+        if (containsBadWords(newContent)) {
+            throw new RuntimeException("Content contains inappropriate words");
+        }
+
+        post.setContent(newContent);
+
+        return postRepository.save(post);
+    }
+
+    public String deletePost(UUID postId) {
+
+        User user = userService.getCurrentUser();
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        // ADMIN CAN DELETE ANY
+        if (user.getRole().name().equals("ROLE_ADMIN")) {
+            postRepository.delete(post);
+            return "Deleted by admin";
+        }
+
+        // OWNER CAN DELETE
+        if (post.getUser() == null ||
+                !post.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You can only delete your own post");
+        }
+
+        postRepository.delete(post);
+
+        return "Post deleted successfully";
     }
 }

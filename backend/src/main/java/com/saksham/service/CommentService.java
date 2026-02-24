@@ -14,14 +14,13 @@ import com.saksham.repository.PostRepository;
 
 @Service
 public class CommentService {
-
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserService userService; // NEW
 
     public CommentService(CommentRepository commentRepository,
-                          PostRepository postRepository,
-                          UserService userService) {
+            PostRepository postRepository,
+            UserService userService) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.userService = userService;
@@ -42,6 +41,12 @@ public class CommentService {
     // ADD COMMENT WITH USER
     public Comment addComment(UUID postId, String content) {
 
+        User user = userService.getCurrentUser();
+
+        if (!user.getRole().name().equals("ROLE_STUDENT")) {
+            throw new RuntimeException("Only students can comment");
+        }
+
         if (containsBadWords(content)) {
             throw new RuntimeException("Comment contains inappropriate content");
         }
@@ -49,14 +54,31 @@ public class CommentService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        // JWT USER
-        User user = userService.getCurrentUser();
-
         Comment comment = new Comment();
         comment.setContent(content);
         comment.setCreatedAt(LocalDateTime.now());
         comment.setPost(post);
-        comment.setUser(user); // IMPORTANT
+        comment.setUser(user);
+
+        return commentRepository.save(comment);
+    }
+
+    public Comment editComment(UUID commentId, String newContent) {
+
+        User user = userService.getCurrentUser();
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You can only edit your own comment");
+        }
+
+        if (containsBadWords(newContent)) {
+            throw new RuntimeException("Invalid content");
+        }
+
+        comment.setContent(newContent);
 
         return commentRepository.save(comment);
     }
@@ -64,5 +86,28 @@ public class CommentService {
     // FETCH ONLY NON-HIDDEN COMMENTS
     public List<Comment> getCommentsByPost(UUID postId) {
         return commentRepository.findByPostIdAndIsHiddenFalse(postId);
+    }
+
+    public String deleteComment(UUID commentId) {
+
+        User user = userService.getCurrentUser();
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+
+        // ADMIN
+        if (user.getRole().name().equals("ROLE_ADMIN")) {
+            commentRepository.delete(comment);
+            return "Deleted by admin";
+        }
+
+        // OWNER
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You can only delete your own comment");
+        }
+
+        commentRepository.delete(comment);
+
+        return "Deleted successfully";
     }
 }

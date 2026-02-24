@@ -12,4 +12,6 @@ import com.saksham.entity.User;
 public interface LikeRepository extends JpaRepository<Like, UUID> {
 
     Optional<Like> findByUserAndPost(User user, Post post);
+
+    long countByPost(Post post);
 }

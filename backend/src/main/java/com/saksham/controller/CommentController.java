@@ -5,9 +5,11 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,9 +42,28 @@ public class CommentController {
         }
     }
 
+    // EDIT COMMENT
+    @PutMapping("/edit/{commentId}")
+    public Comment editComment(@PathVariable UUID commentId,
+            @RequestBody Map<String, String> body) {
+
+        return commentService.editComment(commentId, body.get("content"));
+    }
+
     // GET COMMENTS
     @GetMapping("/{postId}")
     public List<Comment> getComments(@PathVariable UUID postId) {
         return commentService.getCommentsByPost(postId);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public Object deleteComment(@PathVariable UUID id) {
+        try {
+            return commentService.deleteComment(id);
+        } catch (RuntimeException e) {
+            return Map.of(
+                    "success", false,
+                    "message", e.getMessage());
+        }
     }
 }

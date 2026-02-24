@@ -12,4 +12,6 @@ import com.saksham.entity.User;
 public interface ReportRepository extends JpaRepository<Report, UUID> {
 
     Optional<Report> findByUserAndPost(User user, Post post);
+    
+    long countByPost(Post post);
 }
