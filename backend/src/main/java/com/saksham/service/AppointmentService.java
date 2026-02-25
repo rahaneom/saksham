@@ -7,14 +7,18 @@ import com.saksham.dto.SlotResponse;
 import com.saksham.dto.StudentAppointmentResponse;
 import com.saksham.entity.*;
 import com.saksham.repository.*;
-import jakarta.transaction.Transactional;
+// import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.Map;
+
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +40,7 @@ public class AppointmentService {
             throw new RuntimeException("Only students can book appointments");
         }
 
-        Slot slot = slotRepository.findById(slotId)
+        Slot slot = slotRepository.findByIdForUpdate(slotId)
                 .orElseThrow(() -> new RuntimeException("Slot not found"));
 
         // if (!slot.getSlotDate().equals(LocalDate.now().plusDays(1))) {
@@ -82,6 +86,7 @@ public class AppointmentService {
     }
 
     // 🔵 Booking response
+    @Transactional
     public BookingResponse bookAppointmentResponse(UUID studentId, UUID slotId) {
 
         Appointment appointment = bookAppointment(studentId, slotId);
@@ -109,27 +114,44 @@ public class AppointmentService {
     }
 
     // 🔵 Counsellor Dashboard
-    public List<CounsellorAppointmentResponse> getAllAppointmentsForCounsellor(UUID counsellorId) {
+    public List<CounsellorAppointmentResponse> getAppointmentsForCounsellor(
+        UUID counsellorId,
+        AppointmentStatus status
+    ) {
 
-        User counsellor = userRepository.findById(counsellorId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    User counsellor = userRepository.findById(counsellorId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // 🔐 ROLE CHECK
-        if (counsellor.getRole() != Role.ROLE_COUNSELLOR) {
-            throw new RuntimeException("Only counsellor can view all appointments");
-        }
+    if (counsellor.getRole() != Role.ROLE_COUNSELLOR) {
+        throw new RuntimeException("Only counsellor can view appointments");
+    }
 
-        return appointmentRepository.findAll().stream()
-                .map(a -> new CounsellorAppointmentResponse(
-                        a.getStudent().getName(),
-                        a.getStudent().getAcademicYear(),
-                        a.getStudent().getPhone(),
-                        a.getSlot().getSlotDate(),
-                        a.getSlot().getStartTime(),
-                        a.getSlot().getEndTime(),
-                        a.getStatus().toString()
-                ))
-                .toList();
+    List<Appointment> appointments;
+
+    if (status != null) {
+        // BOOKED OR COMPLETED explicitly
+        appointments = appointmentRepository.findByStatus(status);
+    } else {
+        // Default → hide CANCELLED
+        appointments = appointmentRepository.findByStatusIn(
+                List.of(
+                        AppointmentStatus.BOOKED,
+                        AppointmentStatus.COMPLETED
+                )
+        );
+    }
+
+    return appointments.stream()
+            .map(a -> new CounsellorAppointmentResponse(
+                    a.getStudent().getName(),
+                    a.getStudent().getAcademicYear(),
+                    a.getStudent().getPhone(),
+                    a.getSlot().getSlotDate(),
+                    a.getSlot().getStartTime(),
+                    a.getSlot().getEndTime(),
+                    a.getStatus().toString()
+            ))
+            .toList();
     }
 
     // 🔵 Tomorrow Available Slots
@@ -219,4 +241,50 @@ public class AppointmentService {
         appointment.setStatus(AppointmentStatus.COMPLETED);
         appointmentRepository.save(appointment);
     }
+
+    public Map<String, List<SlotDisplayResponse>> getBookingSlotsForStudent() {
+
+    LocalDate today = LocalDate.now();
+    LocalDate tomorrow = today.plusDays(1);
+    LocalDateTime now = LocalDateTime.now();
+
+    List<SlotDisplayResponse> todaySlots =
+            slotRepository.findBySlotDate(today)
+                    .stream()
+                    .map(slot -> {
+                        LocalDateTime slotStart =
+                                LocalDateTime.of(today, slot.getStartTime());
+
+                        boolean bookable =
+                                slot.isAvailable() &&
+                                now.isBefore(slotStart.minusHours(1));
+
+                        return new SlotDisplayResponse(
+                                slot.getId(),
+                                slot.getSlotDate(),
+                                slot.getStartTime(),
+                                slot.getEndTime(),
+                                bookable
+                        );
+                    })
+                    .toList();
+
+    List<SlotDisplayResponse> tomorrowSlots =
+            slotRepository.findBySlotDate(tomorrow)
+                    .stream()
+                    .map(slot -> new SlotDisplayResponse(
+                            slot.getId(),
+                            slot.getSlotDate(),
+                            slot.getStartTime(),
+                            slot.getEndTime(),
+                            slot.isAvailable()
+                    ))
+                    .toList();
+
+    Map<String, List<SlotDisplayResponse>> response = new HashMap<>();
+    response.put("today", todaySlots);
+    response.put("tomorrow", tomorrowSlots);
+
+    return response;
+}
 }

@@ -15,12 +15,11 @@ public class SlotCleanupScheduler {
     private final SlotRepository slotRepository;
 
     // Runs daily at 1:00 AM
-    // @Scheduled(cron = "0
-    //  0 1 * * ?")
-   @Transactional
+    // @Scheduled(cron = "0 0 1 * * ?")
+    @Transactional(readOnly = false)
     @Scheduled(fixedRate = 60000) // every 1 minute
     public void cleanupOldSlots() {
-        slotRepository.deleteByIsAvailableTrueAndSlotDateBefore(
+        slotRepository.deleteUnusedOldSlots(
                 LocalDate.now()
         );
     }

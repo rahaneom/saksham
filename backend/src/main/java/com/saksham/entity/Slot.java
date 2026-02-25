@@ -30,6 +30,7 @@ public class Slot {
     private LocalTime endTime;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean isAvailable = true;
 
     @Column(nullable = false)

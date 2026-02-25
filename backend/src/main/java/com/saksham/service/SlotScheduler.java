@@ -29,9 +29,12 @@ public class SlotScheduler {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
 
         // Prevent duplicate generation
-        boolean alreadyExists = slotRepository.existsBySlotDate(tomorrow);
+        int expectedSlots = 10;
+        int existingSlots = slotRepository.countBySlotDate(tomorrow);
 
-        if (alreadyExists) return;
+        if (existingSlots >= expectedSlots) {
+            return;
+        }
 
         LocalTime start = LocalTime.of(10, 0);
         LocalTime end = LocalTime.of(15, 0);
