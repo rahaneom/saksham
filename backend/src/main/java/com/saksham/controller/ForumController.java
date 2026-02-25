@@ -42,12 +42,14 @@ public class ForumController {
     }
 
     // GET ALL POSTS
-    @GetMapping("/all")
+    @GetMapping("/posts")
     public Page<Post> getPosts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size) {
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "latest") String sortBy,
+            @RequestParam(required = false) String tag) {
 
-        return forumService.getPosts(page, size);
+        return forumService.getPosts(page, size, sortBy, tag);
     }
 
     // LIKE A POST

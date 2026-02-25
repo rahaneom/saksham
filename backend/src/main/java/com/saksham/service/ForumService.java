@@ -3,6 +3,10 @@ package com.saksham.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.saksham.entity.Like;
@@ -12,9 +16,6 @@ import com.saksham.entity.User;
 import com.saksham.repository.LikeRepository;
 import com.saksham.repository.PostRepository;
 import com.saksham.repository.ReportRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 @Service
 public class ForumService {
@@ -60,18 +61,30 @@ public class ForumService {
     }
 
     // Get all posts
-    public Page<Post> getPosts(int page, int size) {
+    public Page<Post> getPosts(int page, int size, String sortBy, String tag) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Sort sort;
+
+        // 🔥 SORT LOGIC
+        if (sortBy.equalsIgnoreCase("likes")) {
+            sort = Sort.by(Sort.Direction.DESC, "likesCount");
+        } else if (sortBy.equalsIgnoreCase("reports")) {
+            sort = Sort.by(Sort.Direction.DESC, "reportCount");
+        } else {
+            sort = Sort.by(Sort.Direction.DESC, "createdAt"); // default latest
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // FILTER + PAGINATION
+        if (tag != null) {
+            return postRepository.findByTagAndIsHiddenFalse(
+                    com.saksham.entity.Tag.valueOf(tag.toUpperCase()),
+                    pageable);
+        }
 
         return postRepository.findByIsHiddenFalse(pageable);
     }
-    // public List<Post> getAllPosts() {
-    // return postRepository.findAll()
-    // .stream()
-    // .filter(post -> !post.isHidden())
-    // .toList();
-    // }
 
     // Like a post
     public Post likePost(UUID postId) {
