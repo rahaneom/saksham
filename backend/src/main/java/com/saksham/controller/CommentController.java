@@ -32,14 +32,8 @@ public class CommentController {
     @PostMapping("/add/{postId}")
     public Object addComment(@PathVariable UUID postId,
             @RequestBody Map<String, String> body) {
-        try {
-            String content = body.get("content");
-            return commentService.addComment(postId, content);
-        } catch (RuntimeException e) {
-            return Map.of(
-                    "success", false,
-                    "message", e.getMessage());
-        }
+        String content = body.get("content");
+        return commentService.addComment(postId, content);
     }
 
     // EDIT COMMENT
@@ -58,12 +52,6 @@ public class CommentController {
 
     @DeleteMapping("/delete/{id}")
     public Object deleteComment(@PathVariable UUID id) {
-        try {
-            return commentService.deleteComment(id);
-        } catch (RuntimeException e) {
-            return Map.of(
-                    "success", false,
-                    "message", e.getMessage());
-        }
+        return commentService.deleteComment(id);
     }
 }

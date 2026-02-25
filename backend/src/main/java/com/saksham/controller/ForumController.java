@@ -32,13 +32,7 @@ public class ForumController {
     // CREATE POST
     @PostMapping("/create")
     public Object createPost(@RequestBody Post post) {
-        try {
-            return forumService.createPost(post);
-        } catch (RuntimeException e) {
-            return java.util.Map.of(
-                    "success", false,
-                    "message", e.getMessage());
-        }
+        return forumService.createPost(post);
     }
 
     // GET ALL POSTS
@@ -74,12 +68,6 @@ public class ForumController {
 
     @DeleteMapping("/delete/{id}")
     public Object deletePost(@PathVariable UUID id) {
-        try {
-            return forumService.deletePost(id);
-        } catch (RuntimeException e) {
-            return java.util.Map.of(
-                    "success", false,
-                    "message", e.getMessage());
-        }
+        return forumService.deletePost(id);
     }
 }
