@@ -1,7 +1,6 @@
 package com.saksham.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -13,6 +12,9 @@ import com.saksham.entity.User;
 import com.saksham.repository.LikeRepository;
 import com.saksham.repository.PostRepository;
 import com.saksham.repository.ReportRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class ForumService {
@@ -58,12 +60,18 @@ public class ForumService {
     }
 
     // Get all posts
-    public List<Post> getAllPosts() {
-        return postRepository.findAll()
-                .stream()
-                .filter(post -> !post.isHidden())
-                .toList();
+    public Page<Post> getPosts(int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return postRepository.findByIsHiddenFalse(pageable);
     }
+    // public List<Post> getAllPosts() {
+    // return postRepository.findAll()
+    // .stream()
+    // .filter(post -> !post.isHidden())
+    // .toList();
+    // }
 
     // Like a post
     public Post likePost(UUID postId) {
