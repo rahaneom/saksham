@@ -1,0 +1,19 @@
+package com.saksham.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public class CreateCommentRequest {
+
+    @NotBlank(message = "Comment cannot be empty")
+    @Size(max = 1000, message = "Comment too long")
+    private String content;
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+}

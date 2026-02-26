@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.saksham.dto.CreatePostRequest;
 import com.saksham.entity.Like;
 import com.saksham.entity.Post;
 import com.saksham.entity.Report;
@@ -16,6 +17,7 @@ import com.saksham.entity.User;
 import com.saksham.repository.LikeRepository;
 import com.saksham.repository.PostRepository;
 import com.saksham.repository.ReportRepository;
+import com.saksham.dto.PostResponse;
 
 @Service
 public class ForumService {
@@ -23,16 +25,18 @@ public class ForumService {
     private final UserService userService;
     private final LikeRepository likeRepository;
     private final ReportRepository reportRepository;
+    private final AliasService aliasService;
 
     public ForumService(PostRepository postRepository,
             UserService userService,
             LikeRepository likeRepository,
-            ReportRepository reportRepository) {
-
+            ReportRepository reportRepository,
+            AliasService aliasService) {
         this.postRepository = postRepository;
         this.userService = userService;
         this.likeRepository = likeRepository;
         this.reportRepository = reportRepository;
+        this.aliasService = aliasService;
     }
 
     private boolean containsBadWords(String content) {
@@ -47,66 +51,99 @@ public class ForumService {
     }
 
     // Create Post
-    public Post createPost(Post post) {
-        if (containsBadWords(post.getContent())) {
+    public Post createPost(CreatePostRequest request) {
+
+        if (containsBadWords(request.getContent())) {
             throw new RuntimeException("Post contains inappropriate content");
         }
 
-        User user = userService.getCurrentUser(); // IMPORTANT
+        User user = userService.getCurrentUser();
 
-        post.setUser(user); // LINK USER
+        Post post = new Post();
+        post.setContent(request.getContent());
+        post.setTag(request.getTag());
+        post.setAnonymous(request.isAnonymous());
+        post.setUser(user);
         post.setCreatedAt(LocalDateTime.now());
 
         return postRepository.save(post);
     }
 
     // Get all posts
-    public Page<Post> getPosts(int page, int size, String sortBy, String tag) {
+    public Page<PostResponse> getPosts(int page, int size, String sortBy, String tag) {
 
         Sort sort;
 
-        // 🔥 SORT LOGIC
         if (sortBy.equalsIgnoreCase("likes")) {
             sort = Sort.by(Sort.Direction.DESC, "likesCount");
         } else if (sortBy.equalsIgnoreCase("reports")) {
             sort = Sort.by(Sort.Direction.DESC, "reportCount");
         } else {
-            sort = Sort.by(Sort.Direction.DESC, "createdAt"); // default latest
+            sort = Sort.by(Sort.Direction.DESC, "createdAt");
         }
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        // FILTER + PAGINATION
+        Page<Post> postPage;
+
         if (tag != null) {
-            return postRepository.findByTagAndIsHiddenFalse(
+            postPage = postRepository.findByTagAndIsHiddenFalse(
                     com.saksham.entity.Tag.valueOf(tag.toUpperCase()),
                     pageable);
+        } else {
+            postPage = postRepository.findByIsHiddenFalse(pageable);
         }
 
-        return postRepository.findByIsHiddenFalse(pageable);
+        // CONVERT PAGE<Post> → PAGE<PostResponse>
+        return postPage.map(post -> {
+            String alias = aliasService.generateAlias();
+            return PostResponse.from(post, alias);
+        });
+    }
+
+    public Page<PostResponse> getMyPosts(int page, int size) {
+
+        User user = userService.getCurrentUser();
+
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Post> posts = postRepository.findByUserAndIsHiddenFalse(user, pageable);
+
+        return posts.map(post -> {
+            String alias = aliasService.generateAlias();
+            return PostResponse.from(post, alias);
+        });
     }
 
     // Like a post
     public Post likePost(UUID postId) {
+
         User user = userService.getCurrentUser();
 
         if (!user.getRole().name().equals("ROLE_STUDENT")) {
             throw new RuntimeException("Only students can perform this action");
         }
+
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        // Check if already liked
-        if (likeRepository.findByUserAndPost(user, post).isPresent()) {
-            throw new RuntimeException("You already liked this post");
+        // CHECK EXISTING LIKE
+        var existingLike = likeRepository.findByUserAndPost(user, post);
+
+        if (existingLike.isPresent()) {
+            // UNLIKE
+            likeRepository.delete(existingLike.get());
+
+        } else {
+            // LIKE
+            Like like = new Like(user, post);
+            likeRepository.save(like);
         }
 
-        // Save like
-        Like like = new Like(user, post);
-        likeRepository.save(like);
-
-        // Increment count
-        post.setLikesCount((int) likeRepository.countByPost(post));
+        // ALWAYS UPDATE COUNT FROM DB
+        long count = likeRepository.countByPost(post);
+        post.setLikesCount((int) count);
 
         return postRepository.save(post);
     }

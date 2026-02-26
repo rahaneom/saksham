@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.saksham.dto.CommentResponse;
 import com.saksham.entity.Comment;
 import com.saksham.entity.Post;
 import com.saksham.entity.User;
@@ -84,8 +85,11 @@ public class CommentService {
     }
 
     // FETCH ONLY NON-HIDDEN COMMENTS
-    public List<Comment> getCommentsByPost(UUID postId) {
-        return commentRepository.findByPostIdAndIsHiddenFalse(postId);
+    public List<CommentResponse> getCommentsByPost(UUID postId) {
+        return commentRepository.findByPostIdAndIsHiddenFalse(postId)
+                .stream()
+                .map(CommentResponse::from)
+                .toList();
     }
 
     public String deleteComment(UUID commentId) {

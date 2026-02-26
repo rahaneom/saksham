@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.saksham.entity.Post;
 import com.saksham.entity.Tag;
+import com.saksham.entity.User;
 
 public interface PostRepository extends JpaRepository<Post, UUID> {
     // Filter by tag + not hidden
@@ -15,4 +16,7 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
 
     // Only non-hidden posts
     Page<Post> findByIsHiddenFalse(Pageable pageable);
+
+    // My Posts
+    Page<Post> findByUserAndIsHiddenFalse(User user, Pageable pageable);
 }

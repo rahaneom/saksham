@@ -34,7 +34,10 @@ public class User {
 
     @Column(nullable = false)
     private String name;
-    
+
+    @Column(unique = true)
+    private String alias;
+
     @Column(nullable = false)
     private String academicYear;
 

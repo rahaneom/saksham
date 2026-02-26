@@ -87,6 +87,10 @@ public class Post {
         return isAnonymous;
     }
 
+    public void setAnonymous(boolean anonymous) {
+        this.isAnonymous = anonymous;
+    }
+
     public int getLikesCount() {
         return likesCount;
     }

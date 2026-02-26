@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.saksham.dto.CreatePostRequest;
+import com.saksham.dto.EditPostRequest;
 import com.saksham.entity.Post;
 import com.saksham.service.ForumService;
+import com.saksham.dto.PostResponse;
 
 @RestController
 @RequestMapping("/api/forum")
@@ -31,19 +34,28 @@ public class ForumController {
 
     // CREATE POST
     @PostMapping("/create")
-    public Object createPost(@RequestBody Post post) {
-        return forumService.createPost(post);
+    public Post createPost(@RequestBody @jakarta.validation.Valid CreatePostRequest request) {
+        return forumService.createPost(request);
     }
 
     // GET ALL POSTS
     @GetMapping("/posts")
-    public Page<Post> getPosts(
+    public Page<PostResponse> getPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "latest") String sortBy,
             @RequestParam(required = false) String tag) {
 
         return forumService.getPosts(page, size, sortBy, tag);
+    }
+
+    // GET MY POSTS
+    @GetMapping("/my-posts")
+    public Page<PostResponse> getMyPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        return forumService.getMyPosts(page, size);
     }
 
     // LIKE A POST
@@ -61,9 +73,9 @@ public class ForumController {
     // EDIT POST
     @PutMapping("/edit/{id}")
     public Post editPost(@PathVariable UUID id,
-            @RequestBody Map<String, String> body) {
+            @RequestBody @jakarta.validation.Valid EditPostRequest request) {
 
-        return forumService.editPost(id, body.get("content"));
+        return forumService.editPost(id, request.getContent());
     }
 
     @DeleteMapping("/delete/{id}")

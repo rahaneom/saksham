@@ -1,7 +1,6 @@
 package com.saksham.controller;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -14,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.saksham.dto.CommentResponse;
+import com.saksham.dto.CreateCommentRequest;
+import com.saksham.dto.EditCommentRequest;
 import com.saksham.entity.Comment;
 import com.saksham.service.CommentService;
 
@@ -30,23 +32,23 @@ public class CommentController {
 
     // ADD COMMENT
     @PostMapping("/add/{postId}")
-    public Object addComment(@PathVariable UUID postId,
-            @RequestBody Map<String, String> body) {
-        String content = body.get("content");
-        return commentService.addComment(postId, content);
+    public Comment addComment(@PathVariable UUID postId,
+            @RequestBody @jakarta.validation.Valid CreateCommentRequest request) {
+
+        return commentService.addComment(postId, request.getContent());
     }
 
     // EDIT COMMENT
-    @PutMapping("/edit/{commentId}")
-    public Comment editComment(@PathVariable UUID commentId,
-            @RequestBody Map<String, String> body) {
+    @PutMapping("/edit/{id}")
+    public Comment editComment(@PathVariable UUID id,
+            @RequestBody @jakarta.validation.Valid EditCommentRequest request) {
 
-        return commentService.editComment(commentId, body.get("content"));
+        return commentService.editComment(id, request.getContent());
     }
 
     // GET COMMENTS
     @GetMapping("/{postId}")
-    public List<Comment> getComments(@PathVariable UUID postId) {
+    public List<CommentResponse> getComments(@PathVariable UUID postId) {
         return commentService.getCommentsByPost(postId);
     }
 
