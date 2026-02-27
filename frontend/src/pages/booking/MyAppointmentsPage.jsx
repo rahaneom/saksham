@@ -95,32 +95,32 @@ function MyAppointmentsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-3 flex items-center justify-center gap-3">
-            <svg className="w-12 h-12 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-gray-800 mb-3 flex items-center justify-center gap-2 sm:gap-3">
+            <svg className="w-8 h-8 sm:w-12 sm:h-12 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
               <polyline points="14 2 14 8 20 8" className="fill-none" stroke="currentColor" strokeWidth="2"/>
             </svg>
             My Appointments
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-600 text-sm sm:text-lg">
             View and manage your scheduled consultations
           </p>
         </div>
 
         {/* Empty State */}
         {appointments.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+          <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-12 text-center">
             <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7"/>
             </svg>
-            <h3 className="text-2xl font-semibold text-gray-800 mb-2">
+            <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-2">
               No Appointments Yet
             </h3>
-            <p className="text-gray-500 text-lg">
+            <p className="text-gray-500 text-sm sm:text-lg">
               You haven't booked any appointments. Head to the booking page to
               schedule one!
             </p>
@@ -156,7 +156,7 @@ function MyAppointmentsPage() {
                         </div>
 
                         {/* Right Section - Status & Action */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2 justify-start sm:justify-end">
                           {/* Status Badge */}
                           <span className="text-xs font-bold uppercase tracking-wide">
                             {appt.status}
@@ -180,7 +180,7 @@ function MyAppointmentsPage() {
             </div>
 
             {/* Pagination Controls */}
-            <div className="mt-8">
+            <div className="mt-6 sm:mt-8">
               <PaginationControls
                 page={page}
                 totalPages={totalPages}
@@ -193,7 +193,7 @@ function MyAppointmentsPage() {
 
         {/* Stats Section */}
         {appointments.length > 0 && (
-          <div className="grid grid-cols-3 gap-4 mt-12">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 sm:mt-12">
             <div className="bg-blue-100 rounded-lg p-6 text-center">
               <div className="text-3xl font-bold text-blue-600">
                 {appointments.filter((a) => a.status === "BOOKED").length}

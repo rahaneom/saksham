@@ -10,12 +10,12 @@ function SlotCard({ slot, onBook }) {
 
   return (
     <div className="card bg-white hover:shadow-lg hover:scale-105 transition-all duration-300 border aspect-square">
-      <div className="card-body p-3 flex flex-col justify-between">
+      <div className="card-body p-2 sm:p-3 flex flex-col justify-between">
         <div>
-          <p className="text-base font-semibold text-gray-800">
+          <p className="text-sm sm:text-base font-semibold text-gray-800">
             {formatTime(slot.startTime)}
           </p>
-          <p className="text-sm text-gray-600 mb-2">
+          <p className="text-xs sm:text-sm text-gray-600 mb-2">
             to {formatTime(slot.endTime)}
           </p>
         </div>
@@ -30,7 +30,7 @@ function SlotCard({ slot, onBook }) {
               </div>
             </div>
             <button
-              className="btn btn-sm w-full bg-blue-600 hover:bg-blue-700 text-white border-none py-1 rounded-md shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
+              className="btn btn-xs sm:btn-sm w-full bg-blue-600 hover:bg-blue-700 text-white border-none py-1 rounded-md shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
               onClick={() => onBook(slot.slotId)}
             >
               Book
@@ -38,7 +38,7 @@ function SlotCard({ slot, onBook }) {
           </>
         ) : (
           <button
-            className="btn btn-sm w-full bg-gray-400 text-gray-600 border-none py-1 rounded-md cursor-not-allowed"
+            className="btn btn-xs sm:btn-sm w-full bg-gray-400 text-gray-600 border-none py-1 rounded-md cursor-not-allowed"
             disabled
           >
             Taken
