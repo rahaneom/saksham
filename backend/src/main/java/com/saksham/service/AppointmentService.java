@@ -9,6 +9,9 @@ import com.saksham.entity.*;
 import com.saksham.repository.*;
 // import jakarta.transaction.Transactional;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -105,6 +108,7 @@ public class AppointmentService {
         return appointmentRepository.findByStudent_Id(studentId)
                 .stream()
                 .map(a -> new StudentAppointmentResponse(
+                        a.getId(),
                         a.getSlot().getSlotDate(),
                         a.getSlot().getStartTime(),
                         a.getSlot().getEndTime(),
@@ -114,9 +118,10 @@ public class AppointmentService {
     }
 
     // 🔵 Counsellor Dashboard
-    public List<CounsellorAppointmentResponse> getAppointmentsForCounsellor(
+    public Page<CounsellorAppointmentResponse> getAppointmentsForCounsellor(
         UUID counsellorId,
-        AppointmentStatus status
+        AppointmentStatus status,
+        Pageable pageable
     ) {
 
     User counsellor = userRepository.findById(counsellorId)
@@ -141,8 +146,9 @@ public class AppointmentService {
         );
     }
 
-    return appointments.stream()
+    List<CounsellorAppointmentResponse> content = appointments.stream()
             .map(a -> new CounsellorAppointmentResponse(
+                    a.getId(),
                     a.getStudent().getName(),
                     a.getStudent().getAcademicYear(),
                     a.getStudent().getPhone(),
@@ -152,6 +158,13 @@ public class AppointmentService {
                     a.getStatus().toString()
             ))
             .toList();
+
+    int start = (int) pageable.getOffset();
+    int end = Math.min((start + pageable.getPageSize()), content.size());
+
+    List<CounsellorAppointmentResponse> pageContent = content.subList(start, end);
+
+    return new PageImpl<>(pageContent, pageable, content.size());
     }
 
     // 🔵 Tomorrow Available Slots

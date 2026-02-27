@@ -6,6 +6,8 @@ import com.saksham.entity.User;
 import com.saksham.repository.UserRepository;
 import com.saksham.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -55,10 +57,11 @@ public class AppointmentController {
     // 🔵 Counsellor Dashboard
     @PreAuthorize("hasRole('COUNSELLOR')")
     @GetMapping("/counsellor")
-        public ResponseEntity<List<CounsellorAppointmentResponse>> getAllAppointments(
-                @RequestParam(required = false) AppointmentStatus status,
-                Authentication authentication
-        ) {
+    public ResponseEntity<Page<CounsellorAppointmentResponse>> getAllAppointments(
+            @RequestParam(required = false) AppointmentStatus status,
+            Pageable pageable,
+            Authentication authentication
+    ) {
 
         String email = authentication.getName();
 
@@ -67,9 +70,9 @@ public class AppointmentController {
                 .getId();
 
         return ResponseEntity.ok(
-                appointmentService.getAppointmentsForCounsellor(counsellorId, status)
+                appointmentService.getAppointmentsForCounsellor(counsellorId, status, pageable)
         );
-        }
+    }
 
     // 🔵 Booking Slots (Today + Tomorrow)
     @PreAuthorize("hasRole('STUDENT')")
