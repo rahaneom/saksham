@@ -1,7 +1,7 @@
 function SortControls({ sortBy, sortOrder, onSortByChange, onSortOrderChange }) {
   return (
-    <div className="flex justify-center gap-2 flex-wrap w-full">
-      <div className="flex gap-2 flex-wrap justify-center">
+    <div className="flex justify-center gap-1.5 sm:gap-3 flex-wrap w-full">
+      <div className="flex gap-1.5 sm:gap-2 flex-wrap justify-center">
         <button
           className={`btn btn-xs sm:btn-sm px-3 sm:px-4 py-2 transition-all duration-300 ${
             sortBy === "date"

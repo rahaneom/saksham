@@ -5,11 +5,20 @@ import {
   fetchMyAppointments,
   cancelAppointment,
 } from "../../features/booking/bookingThunks";
-import { PaginationControls } from "../../components/booking";
+import { PaginationControls, ConfirmModal } from "../../components/booking";
 
 function MyAppointmentsPage() {
   const dispatch = useDispatch();
   const [page, setPage] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [confirmConfig, setConfirmConfig] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    confirmText: "Confirm",
+    confirmButtonClass: "btn-primary",
+    onConfirm: null,
+  });
   const itemsPerPage = 5;
   const appointments = useSelector((state) => state.booking.myAppointments);
 
@@ -31,25 +40,48 @@ function MyAppointmentsPage() {
   );
 
   useEffect(() => {
-    dispatch(fetchMyAppointments());
+    setIsLoading(true);
+    dispatch(fetchMyAppointments()).finally(() => setIsLoading(false));
   }, [dispatch]);
 
-  const handleCancel = async (appointmentId) => {
-    const confirmCancel = window.confirm(
-      "Are you sure you want to cancel this appointment?"
-    );
-    
-    if (!confirmCancel) return;
+  const closeConfirmModal = () => {
+    setConfirmConfig((prev) => ({
+      ...prev,
+      isOpen: false,
+      onConfirm: null,
+    }));
+  };
 
-    const toastId = toast.loading("Cancelling appointment...");
-    const result = await dispatch(cancelAppointment(appointmentId));
+  const openConfirmModal = (config) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: config.title,
+      message: config.message,
+      confirmText: config.confirmText || "Confirm",
+      confirmButtonClass: config.confirmButtonClass || "btn-primary",
+      onConfirm: config.onConfirm,
+    });
+  };
 
-    if (result.meta.requestStatus === "fulfilled") {
-      toast.success("Appointment cancelled successfully!", { id: toastId });
-      dispatch(fetchMyAppointments());
-    } else {
-      toast.error(result.payload || "Cancellation failed", { id: toastId });
-    }
+  const handleCancel = (appointmentId) => {
+    openConfirmModal({
+      title: "Cancel Appointment",
+      message: "Are you sure you want to cancel this appointment?",
+      confirmText: "Yes, Cancel",
+      confirmButtonClass: "bg-rose-600 hover:bg-rose-700 text-white border-none",
+      onConfirm: async () => {
+        closeConfirmModal();
+        const toastId = toast.loading("Cancelling appointment...");
+        const result = await dispatch(cancelAppointment(appointmentId));
+
+        if (result.meta.requestStatus === "fulfilled") {
+          toast.success("Appointment cancelled successfully!", { id: toastId });
+          dispatch(fetchMyAppointments());
+        } else {
+          toast.error(result.payload || "Cancellation failed", { id: toastId });
+        }
+      },
+    });
   };
 
   const getStatusColor = (status) => {
@@ -95,25 +127,35 @@ function MyAppointmentsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-100 p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-gray-800 mb-3 flex items-center justify-center gap-2 sm:gap-3">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-slate-800 mb-3 flex items-center justify-center gap-2 sm:gap-3">
             <svg className="w-8 h-8 sm:w-12 sm:h-12 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
               <polyline points="14 2 14 8 20 8" className="fill-none" stroke="currentColor" strokeWidth="2"/>
             </svg>
             My Appointments
           </h1>
-          <p className="text-gray-600 text-sm sm:text-lg">
+          <p className="text-slate-600 text-sm sm:text-lg">
             View and manage your scheduled consultations
           </p>
         </div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex justify-center items-center h-64">
+            <div className="text-center">
+              <span className="loading loading-bars loading-lg text-blue-600"></span>
+              <p className="mt-4 text-slate-600">Loading appointments...</p>
+            </div>
+          </div>
+        )}
+
         {/* Empty State */}
-        {appointments.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-12 text-center">
+        {!isLoading && appointments.length === 0 && (
+          <div className="bg-white/95 border border-slate-200 rounded-2xl shadow-lg p-6 sm:p-12 text-center">
             <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7"/>
             </svg>
@@ -125,7 +167,10 @@ function MyAppointmentsPage() {
               schedule one!
             </p>
           </div>
-        ) : (
+        )}
+
+        {/* Appointments List */}
+        {!isLoading && appointments.length > 0 && (
           <>
             <div className="space-y-3">
               {paginatedAppointments.map((appt) => {
@@ -136,7 +181,7 @@ function MyAppointmentsPage() {
                 return (
                   <div
                     key={appointmentId}
-                    className={`card shadow-md hover:shadow-lg transition-all duration-300 ${statusColor}`}
+                    className={`card shadow-sm hover:shadow-md transition-all duration-300 rounded-xl ${statusColor}`}
                   >
                     <div className="card-body p-3 md:p-4">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -165,7 +210,7 @@ function MyAppointmentsPage() {
                           {/* Cancel Button */}
                           {appt.status === "BOOKED" && (
                             <button
-                              className="btn btn-sm bg-red-500 hover:bg-red-600 hover:shadow-lg hover:scale-105 text-white border-none transition-all shadow-sm px-6 py-2"
+                              className="btn btn-xs sm:btn-sm bg-rose-600 hover:bg-rose-700 text-white border-none transition-all shadow-sm hover:shadow-md px-4 sm:px-6 py-2"
                               onClick={() => handleCancel(appointmentId)}
                             >
                               Cancel
@@ -194,26 +239,36 @@ function MyAppointmentsPage() {
         {/* Stats Section */}
         {appointments.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 sm:mt-12">
-            <div className="bg-blue-100 rounded-lg p-6 text-center">
-              <div className="text-3xl font-bold text-blue-600">
+            <div className="stat-card bg-gradient-to-br from-blue-50 to-blue-100 p-6 text-center border-l-4 border-blue-500 shadow-lg\">
+              <div className="text-3xl font-bold text-blue-600\">
                 {appointments.filter((a) => a.status === "BOOKED").length}
               </div>
-              <p className="text-blue-700 font-semibold mt-2">Booked</p>
+              <p className="text-blue-700 font-semibold mt-2\">Booked</p>
             </div>
-            <div className="bg-green-100 rounded-lg p-6 text-center">
-              <div className="text-3xl font-bold text-green-600">
+            <div className="stat-card bg-gradient-to-br from-green-50 to-green-100 p-6 text-center border-l-4 border-green-500 shadow-lg\">
+              <div className="text-3xl font-bold text-green-600\">
                 {appointments.filter((a) => a.status === "COMPLETED").length}
               </div>
-              <p className="text-green-700 font-semibold mt-2">Completed</p>
+              <p className="text-green-700 font-semibold mt-2\">Completed</p>
             </div>
-            <div className="bg-red-100 rounded-lg p-6 text-center">
-              <div className="text-3xl font-bold text-red-600">
+            <div className="stat-card bg-gradient-to-br from-red-50 to-red-100 p-6 text-center border-l-4 border-red-500 shadow-lg\">
+              <div className="text-3xl font-bold text-red-600\">
                 {appointments.filter((a) => a.status === "CANCELLED").length}
               </div>
-              <p className="text-red-700 font-semibold mt-2">Cancelled</p>
+              <p className="text-red-700 font-semibold mt-2\">Cancelled</p>
             </div>
           </div>
         )}
+
+        <ConfirmModal
+          isOpen={confirmConfig.isOpen}
+          title={confirmConfig.title}
+          message={confirmConfig.message}
+          confirmText={confirmConfig.confirmText}
+          confirmButtonClass={confirmConfig.confirmButtonClass}
+          onConfirm={confirmConfig.onConfirm || (() => {})}
+          onClose={closeConfirmModal}
+        />
       </div>
     </div>
   );

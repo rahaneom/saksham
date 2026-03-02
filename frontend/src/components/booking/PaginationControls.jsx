@@ -1,9 +1,9 @@
 function PaginationControls({ page, totalPages, onPrevious, onNext }) {
   return (
     totalPages > 1 && (
-      <div className="flex justify-center gap-2 sm:gap-4 items-center mt-6 flex-wrap">
+      <div className="flex justify-center gap-1.5 sm:gap-3 md:gap-4 items-center mt-6 flex-wrap">
         <button
-          className={`btn btn-xs sm:btn-sm px-4 sm:px-6 py-2 rounded-lg transition-all duration-300 ${
+          className={`btn btn-xs sm:btn-sm px-2 sm:px-4 md:px-6 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg transition-all duration-300 ${
             page === 0
               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
               : "bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-md hover:shadow-lg hover:scale-105"
@@ -14,7 +14,7 @@ function PaginationControls({ page, totalPages, onPrevious, onNext }) {
           Prev
         </button>
 
-        <span className="px-2 sm:px-4 py-2 font-semibold text-gray-700 text-xs sm:text-sm">
+        <span className="px-1.5 sm:px-3 md:px-4 py-1.5 sm:py-2 font-semibold text-gray-700 text-xs sm:text-sm">
           Page {page + 1} of {totalPages}
         </span>
 

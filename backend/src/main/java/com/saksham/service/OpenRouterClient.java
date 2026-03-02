@@ -41,11 +41,11 @@ public class OpenRouterClient {
 
             Map<String, Object> payload = new HashMap<>();
             payload.put("model", currentModel);
-            payload.put("max_tokens", 300);
+            payload.put("max_tokens", 150);
             payload.put("temperature", 0.7);
             payload.put("messages", List.of(
                 Map.of("role", "system", "content",
-                    "You are a calm, supportive mental health assistant. Do not provide medical diagnosis. Encourage professional help if needed."),
+                    "You are a supportive mental health assistant. Keep responses brief (2-3 sentences). Be warm but concise. Do not provide medical diagnosis. Suggest professional help when needed."),
                 Map.of("role", "user", "content", userMessage)
             ));
 

@@ -19,18 +19,22 @@ public class SlotScheduler {
     // 🔥 Runs ONCE when application starts (DEV support)
     @PostConstruct
     public void init() {
-        generateTomorrowSlots();
+        // Generate slots for today and tomorrow on startup
+        generateSlotsForDate(LocalDate.now());
+        generateSlotsForDate(LocalDate.now().plusDays(1));
     }
 
     // ⏰ Runs every day at 12:01 AM
     @Scheduled(cron = "0 1 0 * * ?")
     public void generateTomorrowSlots() {
+        generateSlotsForDate(LocalDate.now().plusDays(1));
+    }
 
-        LocalDate tomorrow = LocalDate.now().plusDays(1);
-
+    // Helper method to generate slots for a specific date
+    private void generateSlotsForDate(LocalDate date) {
         // Prevent duplicate generation
         int expectedSlots = 10;
-        int existingSlots = slotRepository.countBySlotDate(tomorrow);
+        int existingSlots = slotRepository.countBySlotDate(date);
 
         if (existingSlots >= expectedSlots) {
             return;
@@ -41,7 +45,7 @@ public class SlotScheduler {
 
         while (start.isBefore(end)) {
             Slot slot = Slot.builder()
-                    .slotDate(tomorrow)
+                    .slotDate(date)
                     .startTime(start)
                     .endTime(start.plusMinutes(30))
                     .isAvailable(true)

@@ -4,3 +4,4 @@ export { default as FilterButtons } from "./FilterButtons";
 export { default as SortControls } from "./SortControls";
 export { default as SlotCard } from "./SlotCard";
 export { default as EmptyState } from "./EmptyState";
+export { default as ConfirmModal } from "./ConfirmModal";
