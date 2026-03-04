@@ -9,7 +9,7 @@ const PostList = ({
   reportedPosts = {},
 }) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {posts.map((post) => (
         <PostCard
           key={post.id}

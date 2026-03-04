@@ -12,6 +12,7 @@ import {
   editPost,
   deletePost,
 } from "../../features/forum/forumSlice";
+import ThemeToggle from "../../components/common/ThemeToggle";
 
 const ForumPage = () => {
   const dispatch = useDispatch();
@@ -95,32 +96,32 @@ const ForumPage = () => {
   };
 
   return (
-    // <div className="max-w-2xl p-4 mx-auto">
-
     <div className="max-w-3xl px-4 py-6 mx-auto">
       <div className="mb-10 text-center">
-        <div className="flex items-center justify-center gap-3">
-          <Users size={32} className="text-emerald-400" />
+        <div className="flex justify-end mb-4">
+          <ThemeToggle />
+        </div>
 
-          <h1 className="text-3xl font-bold tracking-wide text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text">
+        <div className="flex items-center justify-center gap-3">
+          <Users size={32} className="text-primary" />
+
+          <h1 className="text-3xl font-bold tracking-wide text-base-content">
             Anonymous Peer Forum
           </h1>
         </div>
 
-        <p className="mt-3 text-base text-gray-300">
+        <p className="mt-3 text-base text-base-content/70">
           A safe space to share your thoughts, struggles, and experiences
           openly.
         </p>
       </div>
 
-      {error && <p>{error}</p>}
+      {error && <p className="text-error text-center mb-4">{error}</p>}
 
-      <div className="flex items-center justify-between mb-4">
-        {/* <h1 className="text-2xl font-bold">Forum</h1> */}
-
+      <div className="flex items-center justify-between mb-6">
         <select
           disabled={loading}
-          className={`p-3 select select-bordered select-md ${
+          className={`p-3 select select-bordered select-md w-40 ${
             loading ? "opacity-50 cursor-not-allowed" : ""
           }`}
           onChange={(e) =>
@@ -133,7 +134,7 @@ const ForumPage = () => {
 
         <select
           disabled={loading}
-          className={`p-3 select select-bordered select-md ${
+          className={`p-3 select select-bordered select-md w-40 ${
             loading ? "opacity-50 cursor-not-allowed" : ""
           }`}
           onChange={(e) =>
@@ -151,10 +152,13 @@ const ForumPage = () => {
 
       {loading ? (
         <div className="flex justify-center py-20">
-          <span className="loading loading-bars loading-xl"></span>
+          <span className="loading loading-bars loading-xl text-primary"></span>
         </div>
       ) : posts.length === 0 ? (
-        <p className="py-10 text-center opacity-60"></p>
+        <p className="py-10 text-center text-base-content/60">
+          {" "}
+          No Posts Available.
+        </p>
       ) : (
         <PostList
           posts={posts}
@@ -179,8 +183,8 @@ const ForumPage = () => {
       )}
 
       {/* Pagination */}
-      <div className="flex justify-center mt-6">
-        <div className="gap-2 join">
+      <div className="flex justify-center mt-8">
+        <div className="join">
           {/* Previous */}
           <button
             className="px-3 py-3 join-item btn btn-md"
@@ -216,19 +220,17 @@ const ForumPage = () => {
       </div>
 
       {/* Floating Create Post Button */}
-      <div
-        className="text-slate-50 tooltip tooltip-left"
+      {/* <div
+        className="tooltip tooltip-left fixed bottom-10 right-10 z-50"
         data-tip="Create Post"
+      > */}
+      <button
+        className="fixed z-50 transition-all shadow-2xl btn btn-primary btn-circle bottom-10 right-10 bg-emerald-700 border-emerald-900 hover:scale-110 active:scale-95 ring-2 ring-emerald-300"
+        onClick={() => document.getElementById("create_post_modal").showModal()}
       >
-        <button
-          className="fixed z-50 transition-all shadow-2xl btn btn-primary btn-circle bottom-10 right-10 bg-emerald-700 border-emerald-900 hover:scale-110"
-          onClick={() =>
-            document.getElementById("create_post_modal").showModal()
-          }
-        >
-          <Plus size={24} strokeWidth={2.5} />
-        </button>
-      </div>
+        <Plus size={24} />
+      </button>
+      {/* </div> */}
 
       {/* CREATE POST MODAL */}
       <dialog
@@ -236,11 +238,11 @@ const ForumPage = () => {
         className="modal modal-bottom sm:modal-middle"
       >
         <div className="modal-box">
-          <h3 className="text-lg font-bold">Create Post</h3>
+          <h3 className="text-lg font-bold text-base-content">Create Post</h3>
 
           {/* CONTENT INPUT */}
           <textarea
-            className="w-full p-3 mt-3 textarea textarea-bordered"
+            className="w-full p-3 mt-4 textarea textarea-bordered"
             placeholder="What's on your mind?"
             value={newPostContent}
             onChange={(e) => setNewPostContent(e.target.value)}
@@ -248,7 +250,7 @@ const ForumPage = () => {
 
           {/* TAG SELECT */}
           <select
-            className="w-full p-2 mt-3 select select-bordered"
+            className="w-full p-2 mt-4 select select-bordered"
             value={newPostTag}
             onChange={(e) => setNewPostTag(e.target.value)}
           >

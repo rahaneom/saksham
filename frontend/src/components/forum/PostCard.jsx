@@ -88,21 +88,21 @@ function PostCard({
   };
 
   return (
-    <div className="w-full transition-all border shadow-lg card bg-base-200 border-base-300 hover:shadow-xl">
+    <div className="w-full card bg-base-200 border border-base-300 shadow-lg hover:shadow-xl transition-all">
       <div className="p-6 rounded-lg card-body">
         {/* bg-gradient-to-tl from-slate-500 to-cyan-950 */}
         {/* HEADER */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="avatar avatar-placeholder">
-              <div className="w-10 rounded-full bg-cyan-950 text-primary-content">
+              <div className="w-10 rounded-full bg-primary text-primary-content">
                 <span className="text-sm font-semibold">
                   {post.authorName?.charAt(0)?.toUpperCase() || "U"}
                 </span>
               </div>
             </div>
 
-            <h2 className="text-base font-semibold text-teal-100">
+            <h2 className="text-base-content font-semibold">
               {post.authorName || "Unknown"}
             </h2>
           </div>
@@ -138,7 +138,7 @@ function PostCard({
         </div>
 
         {/* TAG */}
-        <div className="flex mt-2">
+        <div className="mt-2">
           <span
             className={`badge badge-md italic ${
               tagStyles[post.tag] || "badge-neutral"
@@ -195,7 +195,7 @@ function PostCard({
         )}
 
         {/* ACTIONS */}
-        <div className="flex justify-between pt-3 mt-3 border-t border-base-200">
+        <div className="flex justify-between pt-3 mt-4 border-t border-base-300">
           <div className="flex gap-6 text-sm">
             {/* LIKE */}
             <div
@@ -205,7 +205,9 @@ function PostCard({
               <Heart
                 size={18}
                 className={`${
-                  post.likedByCurrentUser ? "fill-red-500 text-red-500" : ""
+                  post.likedByCurrentUser
+                    ? "fill-red-500 text-red-500"
+                    : "opacity-70"
                 }`}
               />
               <span>{post.likesCount}</span>
@@ -224,7 +226,7 @@ function PostCard({
           {/* REPORT */}
           <button
             className={`btn btn-ghost btn-xs ${
-              isReported ? "text-gray-400" : "text-error"
+              isReported ? "opacity-40" : "text-error"
             }`}
             disabled={isReported}
             onClick={() => !isReported && onReport(post.id)}
@@ -233,15 +235,14 @@ function PostCard({
           </button>
         </div>
 
-        {/* 💬 COMMENTS SECTION */}
         {/* COMMENTS SECTION */}
         {showComments && (
           <div className="mt-4 space-y-4">
             {/* INPUT BOX */}
             <div className="flex items-center gap-2">
               {/* Avatar */}
-              <div className="avatar">
-                <div className="w-8 h-8 min-w-[32px] rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-semibold ">
+              <div className="avatar avatar-placeholder">
+                <div className="w-8 rounded-full bg-primary text-primary-content flex items-center justify-center text-sm font-semibold ">
                   {post.authorName?.charAt(0)?.toUpperCase() || "U"}
                 </div>
               </div>
@@ -257,7 +258,7 @@ function PostCard({
 
               {/* Button */}
               <button
-                className="px-6 py-5 btn btn-md btn-primary bg-cyan-950 "
+                className="px-6 py-5 btn btn-md btn-primary bg-primary text-primary-content"
                 onClick={handleAddComment}
               >
                 Post
@@ -270,10 +271,10 @@ function PostCard({
             )}
 
             {commentsState?.data?.map((c) => (
-              <div key={c.id} className="flex gap-2 p-3 rounded-lg bg-base-200">
+              <div key={c.id} className="flex gap-3 p-4 rounded-lg bg-base-100">
                 {/* Avatar */}
                 <div className="flex-shrink-0 avatar avatar-placeholder">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-base-300 text-primary-content">
+                  <div className="w-7 h-7 rounded-full bg-primary text-primary-content flex items-center justify-center">
                     <span className="text-xs">
                       {c.authorName?.charAt(0)?.toUpperCase() || "U"}
                     </span>
@@ -284,11 +285,11 @@ function PostCard({
                 <div className="flex-1">
                   {/* Header */}
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-primary">
+                    <span className="text-sm font-semibold text-base-content">
                       {c.authorName || "Unknown"}
                     </span>
 
-                    <span className="text-xs opacity-50">
+                    <span className="text-xs opacity-60">
                       {new Date(c.createdAt).toLocaleString()}
                     </span>
                   </div>
@@ -310,20 +311,20 @@ function PostCard({
                     </div>
                   ) : (
                     <>
-                      <p className="mt-1 text-sm">{c.content}</p>
+                      <p className="mt-1 text-sm text-base-content">{c.content}</p>
 
                       {/* SHOW EDIT ONLY IF OWNER */}
                       {(c.isOwner || c.owner) && (
                         <div className="flex gap-3 mt-1 text-xs">
                           <button
-                            className="text-info"
+                            className="text-info hover:underline"
                             onClick={() => handleEdit(c)}
                           >
                             Edit
                           </button>
 
                           <button
-                            className="text-error"
+                            className="text-error hover:underline"
                             onClick={() => {
                               setDeleteId(c.id);
                               document
@@ -354,7 +355,7 @@ function PostCard({
                   Delete Comment?
                 </h3>
 
-                <p className="py-3 text-base opacity-90">
+                <p className="py-3 opacity-90">
                   This action cannot be undone.
                 </p>
 
@@ -385,7 +386,7 @@ function PostCard({
         <div className="modal-box">
           <h3 className="text-xl font-bold text-error">Delete Post?</h3>
 
-          <p className="py-3 text-base opacity-90">
+          <p className="py-3 opacity-90">
             This action cannot be undone.
           </p>
 
