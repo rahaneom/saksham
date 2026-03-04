@@ -60,7 +60,7 @@ public class ForumController {
 
     // LIKE A POST
     @PutMapping("/like/{id}")
-    public Post likePost(@PathVariable java.util.UUID id) {
+    public PostResponse likePost(@PathVariable java.util.UUID id) {
         return forumService.likePost(id);
     }
 
@@ -72,7 +72,7 @@ public class ForumController {
 
     // EDIT POST
     @PutMapping("/edit/{id}")
-    public Post editPost(@PathVariable UUID id,
+    public PostResponse editPost(@PathVariable UUID id,
             @RequestBody @jakarta.validation.Valid EditPostRequest request) {
 
         return forumService.editPost(id, request.getContent());

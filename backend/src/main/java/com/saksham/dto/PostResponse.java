@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.saksham.entity.Post;
 import com.saksham.entity.Tag;
+import com.saksham.entity.User;
 
 public class PostResponse {
 
@@ -16,21 +17,30 @@ public class PostResponse {
     private int reportCount;
     private LocalDateTime createdAt;
     private String authorName;
+    private boolean likedByCurrentUser;
+    private boolean isOwner;
+
+    public boolean isLikedByCurrentUser() {
+        return likedByCurrentUser;
+    }
 
     // STATIC CONVERTER
-    public static PostResponse from(Post post, String alias) {
+    public static PostResponse from(Post post, String alias, boolean liked, User currentUser) {
         PostResponse res = new PostResponse();
 
         res.id = post.getId();
         res.content = post.getContent();
         res.tag = post.getTag();
         res.anonymous = post.isAnonymous();
+        res.createdAt = post.getCreatedAt();
         res.likesCount = post.getLikesCount();
         res.reportCount = post.getReportCount();
-        res.createdAt = post.getCreatedAt();
 
-        // SET ALIAS (NOT REAL NAME)
-        res.authorName = post.getUser().getAlias();
+        res.authorName = alias;
+        res.likedByCurrentUser = liked;
+
+        res.isOwner = post.getUser() != null &&
+                post.getUser().getId().equals(currentUser.getId());
 
         return res;
     }
@@ -66,5 +76,9 @@ public class PostResponse {
 
     public String getAuthorName() {
         return authorName;
+    }
+
+    public boolean isOwner() {
+        return isOwner;
     }
 }

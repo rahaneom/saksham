@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.saksham.dto.CreatePostRequest;
+import com.saksham.dto.PostResponse;
 import com.saksham.entity.Like;
 import com.saksham.entity.Post;
 import com.saksham.entity.Report;
@@ -17,7 +18,6 @@ import com.saksham.entity.User;
 import com.saksham.repository.LikeRepository;
 import com.saksham.repository.PostRepository;
 import com.saksham.repository.ReportRepository;
-import com.saksham.dto.PostResponse;
 
 @Service
 public class ForumService {
@@ -83,6 +83,7 @@ public class ForumService {
         }
 
         Pageable pageable = PageRequest.of(page, size, sort);
+        User currentUser = userService.getCurrentUser();
 
         Page<Post> postPage;
 
@@ -96,56 +97,70 @@ public class ForumService {
 
         // CONVERT PAGE<Post> → PAGE<PostResponse>
         return postPage.map(post -> {
-            String alias = aliasService.generateAlias();
-            return PostResponse.from(post, alias);
+            boolean liked = likeRepository
+                    .findByUserAndPost(currentUser, post)
+                    .isPresent();
+
+            String alias = post.getUser() != null
+                    ? post.getUser().getAlias()
+                    : "Unknown";
+
+            return PostResponse.from(post, alias, liked, currentUser);
         });
     }
 
     public Page<PostResponse> getMyPosts(int page, int size) {
 
-        User user = userService.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
 
         Pageable pageable = PageRequest.of(page, size,
                 Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        Page<Post> posts = postRepository.findByUserAndIsHiddenFalse(user, pageable);
+        Page<Post> posts = postRepository.findByUserAndIsHiddenFalse(currentUser, pageable);
 
         return posts.map(post -> {
-            String alias = aliasService.generateAlias();
-            return PostResponse.from(post, alias);
+            boolean liked = likeRepository
+                    .findByUserAndPost(currentUser, post)
+                    .isPresent();
+
+            String alias = post.getUser() != null
+                    ? post.getUser().getAlias()
+                    : "Unknown";
+
+            return PostResponse.from(post, alias, liked, currentUser);
         });
     }
 
     // Like a post
-    public Post likePost(UUID postId) {
+    public PostResponse likePost(UUID postId) {
 
         User user = userService.getCurrentUser();
-
-        if (!user.getRole().name().equals("ROLE_STUDENT")) {
-            throw new RuntimeException("Only students can perform this action");
-        }
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        // CHECK EXISTING LIKE
         var existingLike = likeRepository.findByUserAndPost(user, post);
 
-        if (existingLike.isPresent()) {
-            // UNLIKE
-            likeRepository.delete(existingLike.get());
+        boolean liked;
 
+        if (existingLike.isPresent()) {
+            likeRepository.delete(existingLike.get());
+            liked = false;
         } else {
-            // LIKE
-            Like like = new Like(user, post);
-            likeRepository.save(like);
+            likeRepository.save(new Like(user, post));
+            liked = true;
         }
 
-        // ALWAYS UPDATE COUNT FROM DB
         long count = likeRepository.countByPost(post);
         post.setLikesCount((int) count);
 
-        return postRepository.save(post);
+        postRepository.save(post);
+
+        String alias = post.getUser() != null
+                ? post.getUser().getAlias()
+                : "Unknown";
+
+        return PostResponse.from(post, alias, liked, user);
     }
 
     // Report a post
@@ -180,25 +195,28 @@ public class ForumService {
         return postRepository.save(post);
     }
 
-    public Post editPost(UUID postId, String newContent) {
+    public PostResponse editPost(UUID postId, String content) {
 
         User user = userService.getCurrentUser();
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        // Ownership check
-        if (post.getUser() == null || !post.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You can only edit your own post");
+        if (!post.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized");
         }
 
-        if (containsBadWords(newContent)) {
-            throw new RuntimeException("Content contains inappropriate words");
-        }
+        post.setContent(content);
 
-        post.setContent(newContent);
+        Post updated = postRepository.save(post);
 
-        return postRepository.save(post);
+        boolean liked = likeRepository.findByUserAndPost(user, post).isPresent();
+
+        String alias = post.getUser() != null
+                ? post.getUser().getAlias()
+                : "Unknown";
+
+        return PostResponse.from(post, alias, liked, user);
     }
 
     public String deletePost(UUID postId) {

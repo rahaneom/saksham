@@ -40,9 +40,10 @@ public class CommentService {
     }
 
     // ADD COMMENT WITH USER
-    public Comment addComment(UUID postId, String content) {
+    public CommentResponse addComment(UUID postId, String content) {
 
         User user = userService.getCurrentUser();
+        System.out.println("CURRENT USER EMAIL: " + user.getEmail());
 
         if (!user.getRole().name().equals("ROLE_STUDENT")) {
             throw new RuntimeException("Only students can comment");
@@ -61,40 +62,46 @@ public class CommentService {
         comment.setPost(post);
         comment.setUser(user);
 
-        return commentRepository.save(comment);
+        Comment saved = commentRepository.save(comment);
+
+        return CommentResponse.from(saved, user);
     }
 
-    public Comment editComment(UUID commentId, String newContent) {
+    // EDIT COMMENT
+    public CommentResponse editComment(UUID commentId, String content) {
 
         User user = userService.getCurrentUser();
+        System.out.println("CURRENT USER EMAIL: " + user.getEmail());
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
 
         if (!comment.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You can only edit your own comment");
+            throw new RuntimeException("Unauthorized");
         }
 
-        if (containsBadWords(newContent)) {
-            throw new RuntimeException("Invalid content");
-        }
+        comment.setContent(content);
 
-        comment.setContent(newContent);
-
-        return commentRepository.save(comment);
+        return CommentResponse.from(commentRepository.save(comment), user);
     }
 
     // FETCH ONLY NON-HIDDEN COMMENTS
     public List<CommentResponse> getCommentsByPost(UUID postId) {
-        return commentRepository.findByPostIdAndIsHiddenFalse(postId)
-                .stream()
-                .map(CommentResponse::from)
+
+        User user = userService.getCurrentUser();
+        System.out.println("CURRENT USER EMAIL: " + user.getEmail());
+
+        List<Comment> comments = commentRepository.findByPostIdAndIsHiddenFalseOrderByCreatedAtDesc(postId);
+
+        return comments.stream()
+                .map(comment -> CommentResponse.from(comment, user))
                 .toList();
     }
 
     public String deleteComment(UUID commentId) {
 
         User user = userService.getCurrentUser();
+        System.out.println("CURRENT USER EMAIL: " + user.getEmail());
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
@@ -113,5 +120,9 @@ public class CommentService {
         commentRepository.delete(comment);
 
         return "Deleted successfully";
+    }
+
+    public User getCurrentUser() {
+        return userService.getCurrentUser();
     }
 }

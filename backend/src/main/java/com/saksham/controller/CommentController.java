@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.saksham.dto.CommentResponse;
 import com.saksham.dto.CreateCommentRequest;
 import com.saksham.dto.EditCommentRequest;
-import com.saksham.entity.Comment;
 import com.saksham.service.CommentService;
 
 @RestController
@@ -32,18 +31,10 @@ public class CommentController {
 
     // ADD COMMENT
     @PostMapping("/add/{postId}")
-    public Comment addComment(@PathVariable UUID postId,
+    public CommentResponse addComment(@PathVariable UUID postId,
             @RequestBody @jakarta.validation.Valid CreateCommentRequest request) {
 
         return commentService.addComment(postId, request.getContent());
-    }
-
-    // EDIT COMMENT
-    @PutMapping("/edit/{id}")
-    public Comment editComment(@PathVariable UUID id,
-            @RequestBody @jakarta.validation.Valid EditCommentRequest request) {
-
-        return commentService.editComment(id, request.getContent());
     }
 
     // GET COMMENTS
@@ -52,8 +43,18 @@ public class CommentController {
         return commentService.getCommentsByPost(postId);
     }
 
+    // EDIT COMMENT
+    @PutMapping("/edit/{id}")
+    public CommentResponse editComment(@PathVariable UUID id,
+            @RequestBody @jakarta.validation.Valid EditCommentRequest request) {
+
+        return commentService.editComment(id, request.getContent());
+    }
+
+    // DELETE COMMENT
     @DeleteMapping("/delete/{id}")
-    public Object deleteComment(@PathVariable UUID id) {
-        return commentService.deleteComment(id);
+    public String deleteComment(@PathVariable UUID id) {
+        commentService.deleteComment(id);
+        return "Deleted";
     }
 }

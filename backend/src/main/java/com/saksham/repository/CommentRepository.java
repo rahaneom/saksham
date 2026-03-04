@@ -9,6 +9,6 @@ import com.saksham.entity.Comment;
 
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
 
-    // Only fetch visible comments
-    List<Comment> findByPostIdAndIsHiddenFalse(UUID postId);
+    // Sorted + only visible comments
+    List<Comment> findByPostIdAndIsHiddenFalseOrderByCreatedAtDesc(UUID postId);
 }
