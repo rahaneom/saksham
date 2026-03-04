@@ -21,8 +21,6 @@ public class CommentResponse {
         res.content = comment.getContent();
         res.createdAt = comment.getCreatedAt();
 
-        System.out.println("COMMENT USER: " + comment.getUser().getId());
-
         if (comment.getUser() != null) {
             res.authorName = comment.getUser().getAlias();
         }

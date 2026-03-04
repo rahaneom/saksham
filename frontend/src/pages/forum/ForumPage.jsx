@@ -118,36 +118,40 @@ const ForumPage = () => {
 
       {error && <p className="text-error text-center mb-4">{error}</p>}
 
-      <div className="flex items-center justify-between mb-6">
-        <select
-          disabled={loading}
-          className={`p-3 select select-bordered select-md w-40 ${
-            loading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-          onChange={(e) =>
-            dispatch(fetchPosts({ page: 0, sortBy: e.target.value }))
-          }
-        >
-          <option value="latest">Latest</option>
-          <option value="likes">Most Liked</option>
-        </select>
+      <div className="card bg-base-200 mb-6">
+        <div className="card-body p-5 text-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <select
+              disabled={loading}
+              className={`p-3 select select-bordered select-md w-40 shadow-lg border-gray-700 ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              onChange={(e) =>
+                dispatch(fetchPosts({ page: 0, sortBy: e.target.value }))
+              }
+            >
+              <option value="latest">Latest</option>
+              <option value="likes">Most Liked</option>
+            </select>
 
-        <select
-          disabled={loading}
-          className={`p-3 select select-bordered select-md w-40 ${
-            loading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-          onChange={(e) =>
-            dispatch(fetchPosts({ page: 0, sortBy: e.target.value }))
-          }
-        >
-          <option value="">All Tags</option>
-          <option value="STRESS">Stress</option>
-          <option value="EXAMS">Exams</option>
-          <option value="PLACEMENTS">Placements</option>
-          <option value="RELATIONSHIPS">Relationships</option>
-          <option value="MOTIVATION">Motivation</option>
-        </select>
+            <select
+              disabled={loading}
+              className={`p-3 select select-bordered select-md w-40 shadow-lg border-gray-700 ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              onChange={(e) =>
+                dispatch(fetchPosts({ page: 0, sortBy: e.target.value }))
+              }
+            >
+              <option value="">All Tags</option>
+              <option value="STRESS">Stress</option>
+              <option value="EXAMS">Exams</option>
+              <option value="PLACEMENTS">Placements</option>
+              <option value="RELATIONSHIPS">Relationships</option>
+              <option value="MOTIVATION">Motivation</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       {loading ? (
@@ -184,7 +188,7 @@ const ForumPage = () => {
 
       {/* Pagination */}
       <div className="flex justify-center mt-8">
-        <div className="join">
+        <div className="join shadow">
           {/* Previous */}
           <button
             className="px-3 py-3 join-item btn btn-md"
@@ -200,7 +204,7 @@ const ForumPage = () => {
               key={i}
               disabled={loading}
               className={`join-item btn btn-md p-3 ${
-                i === page ? "btn-active" : ""
+                i === page ? "btn-active btn-primary" : ""
               }`}
               onClick={() => dispatch(fetchPosts({ page: i }))}
             >
@@ -225,7 +229,7 @@ const ForumPage = () => {
         data-tip="Create Post"
       > */}
       <button
-        className="fixed z-50 transition-all shadow-2xl btn btn-primary btn-circle bottom-10 right-10 bg-emerald-700 border-emerald-900 hover:scale-110 active:scale-95 ring-2 ring-emerald-300"
+        className="fixed z-50 transition-transform shadow-2xl btn btn-primary btn-circle bottom-10 right-10 hover:scale-110 active:scale-95 ring-2 ring-primary-200"
         onClick={() => document.getElementById("create_post_modal").showModal()}
       >
         <Plus size={24} />
