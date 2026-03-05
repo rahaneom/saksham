@@ -8,7 +8,7 @@ export const fetchPosts = createAsyncThunk(
   "forum/fetchPosts",
   async ({ page = 0, sortBy = "latest", tag = "" }, { rejectWithValue }) => {
     try {
-      let url = `/forum/posts?page=${page}&size=5&sortBy=${sortBy}`;
+      let url = `/api/forum/posts?page=${page}&size=5&sortBy=${sortBy}`;
       if (tag) url += `&tag=${tag}`;
 
       const res = await api.get(url);
@@ -26,7 +26,7 @@ export const reportPost = createAsyncThunk(
   "forum/reportPost",
   async (postId, { rejectWithValue }) => {
     try {
-      await api.put(`/forum/report/${postId}`);
+      await api.put(`/api/forum/report/${postId}`);
       return postId;
     } catch (err) {
       return rejectWithValue(err.response?.data || "Report failed");
@@ -41,7 +41,7 @@ export const toggleLike = createAsyncThunk(
   "forum/toggleLike",
   async (postId, { rejectWithValue }) => {
     try {
-      const res = await api.put(`/forum/like/${postId}`);
+      const res = await api.put(`/api/forum/like/${postId}`);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || "Like failed");
@@ -56,7 +56,7 @@ export const fetchComments = createAsyncThunk(
   "forum/fetchComments",
   async (postId, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/comments/${postId}`);
+      const res = await api.get(`/api/comments/${postId}`);
       return { postId, comments: res.data };
     } catch (err) {
       return rejectWithValue(err.response?.data || "Error fetching comments");
@@ -71,7 +71,7 @@ export const addComment = createAsyncThunk(
   "forum/addComment",
   async ({ postId, content }, { rejectWithValue }) => {
     try {
-      const res = await api.post(`/comments/add/${postId}`, { content });
+      const res = await api.post(`/api/comments/add/${postId}`, { content });
       return { postId, comment: res.data };
     } catch (err) {
       return rejectWithValue(err.response?.data || "Error adding comment");
@@ -83,7 +83,7 @@ export const editComment = createAsyncThunk(
   "forum/editComment",
   async ({ commentId, content, postId }, { rejectWithValue }) => {
     try {
-      const res = await api.put(`/comments/edit/${commentId}`, { content });
+      const res = await api.put(`/api/comments/edit/${commentId}`, { content });
       return { postId, comment: res.data };
     } catch (err) {
       return rejectWithValue(
@@ -98,7 +98,7 @@ export const deleteComment = createAsyncThunk(
   "forum/deleteComment",
   async ({ commentId, postId }, { rejectWithValue }) => {
     try {
-      await api.delete(`/comments/delete/${commentId}`);
+      await api.delete(`/api/comments/delete/${commentId}`);
       return { commentId, postId };
     } catch (err) {
       return rejectWithValue(err.response?.data || "Delete failed");
@@ -110,7 +110,7 @@ export const createPost = createAsyncThunk(
   "forum/createPost",
   async ({ content, tag }, { rejectWithValue }) => {
     try {
-      const res = await api.post("/forum/create", { content, tag });
+      const res = await api.post("/api/forum/create", { content, tag });
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || "Error creating post");
@@ -122,7 +122,7 @@ export const editPost = createAsyncThunk(
   "forum/editPost",
   async ({ postId, content }, { rejectWithValue }) => {
     try {
-      const res = await api.put(`/forum/edit/${postId}`, { content });
+      const res = await api.put(`/api/forum/edit/${postId}`, { content });
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || "Edit failed");
@@ -134,7 +134,7 @@ export const deletePost = createAsyncThunk(
   "forum/deletePost",
   async (postId, { rejectWithValue }) => {
     try {
-      await api.delete(`/forum/delete/${postId}`);
+      await api.delete(`/api/forum/delete/${postId}`);
       return postId;
     } catch (err) {
       return rejectWithValue(err.response?.data || "Delete failed");

@@ -98,9 +98,9 @@ const ForumPage = () => {
   return (
     <div className="max-w-3xl px-4 py-6 mx-auto">
       <div className="mb-10 text-center">
-        <div className="flex justify-end mb-4">
+        {/* <div className="flex justify-end mb-4">
           <ThemeToggle />
-        </div>
+        </div> */}
 
         <div className="flex items-center justify-center gap-3">
           <Users size={32} className="text-primary" />
