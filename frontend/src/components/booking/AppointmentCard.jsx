@@ -33,7 +33,7 @@ function AppointmentCard({ appointment, onMarkComplete, isCounsellor = false }) 
 
           {appointment.status === "BOOKED" && isCounsellor && (
             <button
-              className="btn btn-xs sm:btn-sm bg-emerald-600 hover:bg-emerald-700 text-white border-none px-3 sm:px-4 py-1 rounded-md shadow-sm hover:shadow-md transition-all duration-300 text-xs sm:text-sm"
+              className="btn btn-md bg-emerald-600 hover:bg-emerald-700 text-white border-none px-3 sm:px-4 rounded-md shadow-sm hover:shadow-md transition-all duration-300"
               onClick={() => onMarkComplete(appointment.appointmentId)}
             >
               Mark Completed
@@ -42,7 +42,7 @@ function AppointmentCard({ appointment, onMarkComplete, isCounsellor = false }) 
 
           {appointment.status === "BOOKED" && !isCounsellor && (
             <button
-              className="btn btn-xs sm:btn-sm bg-rose-600 hover:bg-rose-700 text-white border-none px-3 sm:px-4 py-1 rounded-md shadow-sm hover:shadow-md transition-all duration-300 text-xs"
+              className="btn btn-md bg-rose-600 hover:bg-rose-700 text-white border-none px-3 sm:px-4 rounded-md shadow-sm hover:shadow-md transition-all duration-300"
               onClick={() => onMarkComplete(appointment.appointmentId)}
             >
               Cancel

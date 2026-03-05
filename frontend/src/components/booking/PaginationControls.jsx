@@ -1,34 +1,47 @@
-function PaginationControls({ page, totalPages, onPrevious, onNext }) {
+function PaginationControls({ page, totalPages, onPageChange }) {
+  const handlePrev = () => {
+    if (page > 0) onPageChange(page - 1);
+  };
+
+  const handleNext = () => {
+    if (page < totalPages - 1) onPageChange(page + 1);
+  };
+
   return (
     totalPages > 1 && (
-      <div className="flex justify-center gap-1.5 sm:gap-3 md:gap-4 items-center mt-6 flex-wrap">
-        <button
-          className={`btn btn-xs sm:btn-sm px-2 sm:px-4 md:px-6 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg transition-all duration-300 ${
-            page === 0
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-md hover:shadow-lg hover:scale-105"
-          }`}
-          disabled={page === 0}
-          onClick={onPrevious}
-        >
-          Prev
-        </button>
+      <div className="flex justify-center mt-6 sm:mt-8">
+        <div className="join shadow-md">
+          {/* Previous */}
+          <button
+            className="px-3 py-3 join-item btn btn-md hover:bg-indigo-600 hover:text-white transition-all duration-300"
+            onClick={handlePrev}
+            disabled={page === 0}
+          >
+            «
+          </button>
 
-        <span className="px-1.5 sm:px-3 md:px-4 py-1.5 sm:py-2 font-semibold text-gray-700 text-xs sm:text-sm">
-          Page {page + 1} of {totalPages}
-        </span>
+          {/* Page Numbers */}
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i}
+              className={`join-item btn btn-md px-3 py-3 transition-all duration-300 ${
+                i === page ? "btn-active btn-primary" : "hover:bg-indigo-100"
+              }`}
+              onClick={() => onPageChange(i)}
+            >
+              {i + 1}
+            </button>
+          ))}
 
-        <button
-          className={`btn btn-xs sm:btn-sm px-4 sm:px-6 py-2 rounded-lg transition-all duration-300 ${
-            page + 1 >= totalPages
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-md hover:shadow-lg hover:scale-105"
-          }`}
-          disabled={page + 1 >= totalPages}
-          onClick={onNext}
-        >
-          Next
-        </button>
+          {/* Next */}
+          <button
+            className="px-3 py-3 join-item btn btn-md hover:bg-indigo-600 hover:text-white transition-all duration-300"
+            onClick={handleNext}
+            disabled={page === totalPages - 1}
+          >
+            »
+          </button>
+        </div>
       </div>
     )
   );

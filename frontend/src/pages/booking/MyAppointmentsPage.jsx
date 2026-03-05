@@ -224,39 +224,40 @@ function MyAppointmentsPage() {
               })}
             </div>
 
-            {/* Pagination Controls */}
-            <div className="mt-6 sm:mt-8">
-              <PaginationControls
-                page={page}
-                totalPages={totalPages}
-                onPrevious={() => setPage(page - 1)}
-                onNext={() => setPage(page + 1)}
-              />
-            </div>
           </>
         )}
 
         {/* Stats Section */}
         {appointments.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 sm:mt-12">
-            <div className="stat-card bg-gradient-to-br from-blue-50 to-blue-100 p-6 text-center border-l-4 border-blue-500 shadow-lg\">
+            <div className="rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 p-6 text-center border-l-4 border-blue-500 shadow-lg\">
               <div className="text-3xl font-bold text-blue-600\">
                 {appointments.filter((a) => a.status === "BOOKED").length}
               </div>
               <p className="text-blue-700 font-semibold mt-2\">Booked</p>
             </div>
-            <div className="stat-card bg-gradient-to-br from-green-50 to-green-100 p-6 text-center border-l-4 border-green-500 shadow-lg\">
+            <div className="rounded-xl bg-gradient-to-br from-green-50 to-green-100 p-6 text-center border-l-4 border-green-500 shadow-lg\">
               <div className="text-3xl font-bold text-green-600\">
                 {appointments.filter((a) => a.status === "COMPLETED").length}
               </div>
               <p className="text-green-700 font-semibold mt-2\">Completed</p>
             </div>
-            <div className="stat-card bg-gradient-to-br from-red-50 to-red-100 p-6 text-center border-l-4 border-red-500 shadow-lg\">
+            <div className="rounded-xl bg-gradient-to-br from-red-50 to-red-100 p-6 text-center border-l-4 border-red-500 shadow-lg\">
               <div className="text-3xl font-bold text-red-600\">
                 {appointments.filter((a) => a.status === "CANCELLED").length}
               </div>
               <p className="text-red-700 font-semibold mt-2\">Cancelled</p>
             </div>
+          </div>
+        )}
+
+        {!isLoading && appointments.length > 0 && (
+          <div className="mt-6 sm:mt-8">
+            <PaginationControls
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
           </div>
         )}
 

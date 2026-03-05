@@ -248,8 +248,7 @@ function CounsellorDashboard() {
           <PaginationControls
             page={page}
             totalPages={totalPages}
-            onPrevious={() => setPage(page - 1)}
-            onNext={() => setPage(page + 1)}
+            onPageChange={setPage}
           />
 
           <ConfirmModal

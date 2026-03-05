@@ -44,10 +44,10 @@ function ConfirmModal({
         <p className="py-2 sm:py-3 text-xs sm:text-sm text-slate-600">{message}</p>
 
         <div className="modal-action gap-2 sm:gap-3">
-          <button className="btn btn-xs sm:btn-sm btn-ghost hover:bg-red-500 px-3 sm:px-4" onClick={handleCancel}>
+          <button className="btn btn-md btn-error hover:bg-red-600 px-3 sm:px-4" onClick={handleCancel}>
             {cancelText}
           </button>
-          <button className={`btn btn-xs sm:btn-sm ${confirmButtonClass} px-3 sm:px-4`} onClick={handleConfirm}>
+          <button className={`btn btn-md ${confirmButtonClass} px-3 sm:px-4`} onClick={handleConfirm}>
             {confirmText}
           </button>
         </div>
