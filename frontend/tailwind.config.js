@@ -1,13 +1,16 @@
 import daisyui from "daisyui";
 
 export default {
-  content: ["./index.html", "./src/**/*.{js,jsx}"],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,jsx}",
+  ],
   theme: {
     extend: {},
   },
   plugins: [daisyui],
 
   daisyui: {
-    themes: ["retro", "coffee"],
+    themes: ["dracula", "winter"],
   },
 };

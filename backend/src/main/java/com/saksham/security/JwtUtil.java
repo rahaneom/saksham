@@ -1,15 +1,15 @@
 
 package com.saksham.security;
 
-import java.security.Key;
-
-import org.springframework.stereotype.Component;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+
+import java.security.Key;
+
+import org.springframework.stereotype.Component;
 
 @Component
 public class JwtUtil {
