@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  @apply transition-colors duration-300;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply antialiased;
+  font-family: 'Inter', sans-serif;
+}
+
+
+/* Button animations */
+.btn {
+  @apply transition-all duration-300 relative overflow-hidden;
+}
+
+.btn:hover {
+  @apply transform scale-105;
+}
+
+.btn:active {
+  @apply transform scale-95;
+}
+
+/* Card animations */
+.card {
+  @apply transition-all duration-300;
+  gap: 1.5rem;
+}
+
+
+/* Form control spacing */
+.form-control {
+  @apply mb-4;
+}
