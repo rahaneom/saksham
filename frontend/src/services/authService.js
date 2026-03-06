@@ -1,6 +1,11 @@
-import api from "./api";
+import API from "../util/api";
 
+// Register API
+export const registerUser = async (data) => {
+  return await API.post("/auth/register", data);
+};
+
+// Login API
 export const loginUser = async (data) => {
-  const response = await api.post("/auth/login", data);
-  return response.data;
+  return await API.post("/auth/login", data);
 };

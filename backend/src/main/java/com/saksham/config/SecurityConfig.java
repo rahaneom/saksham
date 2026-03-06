@@ -3,6 +3,7 @@ package com.saksham.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -10,9 +11,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.saksham.security.JwtAuthenticationFilter;
-
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.web.cors.*;
+import java.util.List;
+
+import com.saksham.security.JwtAuthenticationFilter;
 
 @Configuration
 @RequiredArgsConstructor
@@ -30,7 +34,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                .cors(cors -> {})
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(form -> form.disable())
@@ -51,6 +55,11 @@ public class SecurityConfig {
                         // ===== ADMIN ONLY =====
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
 
+                        // ===== COUNSELLOR ONLY =====
+                        .requestMatchers(HttpMethod.POST, "/api/resources/**").hasAuthority("ROLE_COUNSELLOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/resources/**").hasAuthority("ROLE_COUNSELLOR")
+                        .requestMatchers(HttpMethod.GET, "/api/resources/**").permitAll()
+
                         // ===== EVERYTHING ELSE → LOGIN REQUIRED =====
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter,
@@ -60,17 +69,16 @@ public class SecurityConfig {
     }
 
     @Bean
-    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
 
-        org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
+        CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(java.util.List.of("http://localhost:3000", "http://localhost:5173"));
-        configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(java.util.List.of("*"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
-        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
-
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
 
         return source;

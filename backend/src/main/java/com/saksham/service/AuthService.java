@@ -3,6 +3,7 @@ package com.saksham.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.saksham.entity.User;
 import com.saksham.dto.*;
@@ -61,5 +62,27 @@ public class AuthService {
                 .email(user.getEmail())
                 .role(user.getRole().name())
                 .build();
+    }
+
+    // Update User
+    public String updateUser(UpdateUserRequest request){
+        String email=SecurityContextHolder.getContext()
+        .getAuthentication()
+        .getName();
+
+        User user=userRepository.findByEmail(email) 
+        .orElseThrow(()-> new RuntimeException("User not found"));
+
+        if(request.getPhone()!=null && !request.getPhone().isBlank()){
+            user.setPhone(request.getPhone());
+        }
+        if(request.getAcademicYear()!=null && !request.getAcademicYear().isBlank()){
+            user.setAcademicYear(request.getAcademicYear());
+        }
+        if(request.getPassword()!=null && !request.getPassword().isBlank()){
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+        userRepository.save(user);
+        return "User updated successfully!";
     }
 }

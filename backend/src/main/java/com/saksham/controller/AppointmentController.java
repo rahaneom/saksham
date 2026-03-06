@@ -2,7 +2,6 @@ package com.saksham.controller;
 
 import com.saksham.dto.*;
 import com.saksham.entity.AppointmentStatus;
-import com.saksham.entity.User;
 import com.saksham.repository.UserRepository;
 import com.saksham.service.AppointmentService;
 import lombok.RequiredArgsConstructor;

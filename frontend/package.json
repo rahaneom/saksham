@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
+    "@supabase/supabase-js": "^2.98.0",
     "axios": "^1.13.5",
     "daisyui": "^5.5.19",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.577.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
