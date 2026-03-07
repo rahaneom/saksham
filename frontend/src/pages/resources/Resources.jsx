@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import API from "../../util/api";
 import { setResources, setLoading } from "../../features/resource/resourceSlice";
 import Loader from "../../components/Loader";
-import { useToast } from "../../components/useToast";
+import { showToast } from "../../util/toast";
 import AddResourceModal from "./AddResourceModal";
 import ResourceCard from "./ResourceCard";
 import { BookOpen, Video, FileText, Music } from "lucide-react";
@@ -12,7 +12,6 @@ function Resources() {
   const dispatch = useDispatch();
   const { list, loading } = useSelector((s) => s.resources);
   const isCounsellor = useSelector((s) => s.auth.user?.role === "ROLE_COUNSELLOR");
-  const addToast = useToast();
   const [selectedType, setSelectedType] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -23,11 +22,11 @@ function Resources() {
       dispatch(setResources(res.data));
     } catch (err) {
       console.error(err);
-      addToast({ message: "Failed to load resources", type: "error" });
+      showToast.error("Failed to load resources");
     } finally {
       dispatch(setLoading(false));
     }
-  }, [dispatch, addToast]);
+  }, [dispatch]);
 
   useEffect(() => {
     fetchData();

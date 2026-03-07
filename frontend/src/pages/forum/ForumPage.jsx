@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { PenSquare } from "lucide-react";
 import { Users } from "lucide-react";
 import { Plus } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import PostList from "../../components/forum/PostList";
+import { PaginationControls } from "../../components/booking";
+import { forumToast, updateToast } from "../../util/toast";
 import {
   fetchPosts,
   reportPost,
@@ -12,17 +13,29 @@ import {
   editPost,
   deletePost,
 } from "../../features/forum/forumSlice";
-import ThemeToggle from "../../components/common/ThemeToggle";
 
 const ForumPage = () => {
   const dispatch = useDispatch();
 
-  const [toast, setToast] = useState("");
   const [newPostContent, setNewPostContent] = useState("");
   const [newPostTag, setNewPostTag] = useState("");
 
+  const runFetchPosts = (params) => {
+    return dispatch(fetchPosts(params)).then((res) => {
+      if (res.meta.requestStatus === "rejected") {
+        forumToast.fetchError(res.payload || "Error fetching posts");
+      }
+      return res;
+    });
+  };
+
   const handleCreatePost = () => {
-    if (!newPostContent.trim() || !newPostTag) return;
+    if (!newPostContent.trim() || !newPostTag) {
+      forumToast.createPostError("Please write content and select a tag");
+      return;
+    }
+
+    const toastId = forumToast.loading("Creating post...");
 
     dispatch(
       createPost({
@@ -31,33 +44,44 @@ const ForumPage = () => {
       }),
     ).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
+        updateToast.success(toastId, "Post created successfully");
         setNewPostContent("");
         setNewPostTag("");
 
         document.getElementById("create_post_modal").close();
 
-        dispatch(fetchPosts({ page: 0 }));
+        runFetchPosts({ page: 0 });
+      } else {
+        updateToast.error(toastId, res.payload || "Error creating post");
       }
     });
   };
 
   const handleEditPost = (postId, content) => {
-    dispatch(editPost({ postId, content }));
+    const toastId = forumToast.loading("Updating post...");
+    return dispatch(editPost({ postId, content })).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        updateToast.success(toastId, "Post updated successfully");
+        return true;
+      }
+      updateToast.error(toastId, res.payload || "Edit failed");
+      return false;
+    });
   };
 
   const handleReport = (postId) => {
     if (reportedPosts[postId]) {
-      setToast("Already reported");
-      setTimeout(() => setToast(""), 2000);
+      forumToast.alreadyReported();
       return;
     }
 
-    dispatch(reportPost(postId)).then((res) => {
+    const toastId = forumToast.loading("Reporting post...");
+    return dispatch(reportPost(postId)).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
-        setToast("Post reported successfully");
+        updateToast.success(toastId, "Post reported successfully");
+      } else {
+        updateToast.error(toastId, res.payload || "Report failed");
       }
-
-      setTimeout(() => setToast(""), 2000);
     });
   };
 
@@ -69,31 +93,31 @@ const ForumPage = () => {
       return;
     }
 
-    dispatch(fetchPosts({ page: 0 }));
+    runFetchPosts({ page: 0 });
   }, [dispatch]);
 
   const handleLike = (postId) => {
-    dispatch(toggleLike(postId));
+    dispatch(toggleLike(postId)).then((res) => {
+      if (res.meta.requestStatus === "rejected") {
+        forumToast.likeError(res.payload || "Like failed");
+      }
+    });
   };
 
   const handleDeletePost = (postId) => {
-    dispatch(deletePost(postId));
+    const toastId = forumToast.loading("Deleting post...");
+    return dispatch(deletePost(postId)).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        updateToast.success(toastId, "Post deleted successfully");
+        return true;
+      }
+      updateToast.error(toastId, res.payload || "Delete failed");
+      return false;
+    });
   };
 
   const { posts, loading, error, page, totalPages, reportedPosts } =
     useSelector((state) => state.forum);
-
-  const handleNext = () => {
-    if (page < totalPages - 1) {
-      dispatch(fetchPosts({ page: page + 1 }));
-    }
-  };
-
-  const handlePrev = () => {
-    if (page > 0) {
-      dispatch(fetchPosts({ page: page - 1 }));
-    }
-  };
 
   return (
     <div className="max-w-3xl px-4 py-6 mx-auto">
@@ -127,7 +151,7 @@ const ForumPage = () => {
                 loading ? "opacity-50 cursor-not-allowed" : ""
               }`}
               onChange={(e) =>
-                dispatch(fetchPosts({ page: 0, sortBy: e.target.value }))
+                runFetchPosts({ page: 0, sortBy: e.target.value })
               }
             >
               <option value="latest">Latest</option>
@@ -140,7 +164,7 @@ const ForumPage = () => {
                 loading ? "opacity-50 cursor-not-allowed" : ""
               }`}
               onChange={(e) =>
-                dispatch(fetchPosts({ page: 0, sortBy: e.target.value }))
+                runFetchPosts({ page: 0, tag: e.target.value })
               }
             >
               <option value="">All Tags</option>
@@ -174,54 +198,12 @@ const ForumPage = () => {
         />
       )}
 
-      {toast && (
-        <div className="toast toast-top toast-end">
-          <div
-            className={`alert ${
-              toast.includes("success") ? "alert-success" : "alert-warning"
-            }`}
-          >
-            <span>{toast}</span>
-          </div>
-        </div>
-      )}
-
       {/* Pagination */}
-      <div className="flex justify-center mt-8">
-        <div className="join shadow">
-          {/* Previous */}
-          <button
-            className="px-3 py-3 join-item btn btn-md"
-            onClick={handlePrev}
-            disabled={page === 0 || loading}
-          >
-            «
-          </button>
-
-          {/* Page Numbers */}
-          {[...Array(totalPages)].map((_, i) => (
-            <button
-              key={i}
-              disabled={loading}
-              className={`join-item btn btn-md p-3 ${
-                i === page ? "btn-active btn-primary" : ""
-              }`}
-              onClick={() => dispatch(fetchPosts({ page: i }))}
-            >
-              {i + 1}
-            </button>
-          ))}
-
-          {/* Next */}
-          <button
-            className="p-3 join-item btn btn-md border-stone-300"
-            onClick={handleNext}
-            disabled={page === totalPages - 1 || loading}
-          >
-            »
-          </button>
-        </div>
-      </div>
+      <PaginationControls 
+        page={page} 
+        totalPages={totalPages} 
+        onPageChange={(pageNum) => runFetchPosts({ page: pageNum })}
+      />
 
       {/* Floating Create Post Button */}
       {/* <div
@@ -229,7 +211,7 @@ const ForumPage = () => {
         data-tip="Create Post"
       > */}
       <button
-        className="fixed z-50 transition-transform shadow-2xl btn btn-primary btn-circle bottom-10 right-10 hover:scale-110 active:scale-95 ring-2 ring-primary-200"
+        className="!fixed z-50 transition-transform shadow-2xl btn btn-primary btn-circle bottom-10 right-10 hover:scale-110 active:scale-95 ring-2 ring-primary-200"
         onClick={() => document.getElementById("create_post_modal").showModal()}
       >
         <Plus size={24} />

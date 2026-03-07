@@ -146,6 +146,15 @@ public class AppointmentService {
         );
     }
 
+        // Ensure pagination starts from latest appointments first (newest date/time).
+        appointments.sort((a, b) -> {
+                int dateCompare = b.getSlot().getSlotDate().compareTo(a.getSlot().getSlotDate());
+                if (dateCompare != 0) {
+                        return dateCompare;
+                }
+                return b.getSlot().getStartTime().compareTo(a.getSlot().getStartTime());
+        });
+
     List<CounsellorAppointmentResponse> content = appointments.stream()
             .map(a -> new CounsellorAppointmentResponse(
                     a.getId(),

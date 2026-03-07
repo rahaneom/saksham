@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import toast from "react-hot-toast";
+import { bookingToast, updateToast } from "../../util/toast";
 import {
   fetchMyAppointments,
   cancelAppointment,
@@ -71,14 +71,14 @@ function MyAppointmentsPage() {
       confirmButtonClass: "bg-rose-600 hover:bg-rose-700 text-white border-none",
       onConfirm: async () => {
         closeConfirmModal();
-        const toastId = toast.loading("Cancelling appointment...");
+        const toastId = bookingToast.loading("Cancelling appointment...");
         const result = await dispatch(cancelAppointment(appointmentId));
 
         if (result.meta.requestStatus === "fulfilled") {
-          toast.success("Appointment cancelled successfully!", { id: toastId });
+          updateToast.success(toastId, "Appointment cancelled successfully!");
           dispatch(fetchMyAppointments());
         } else {
-          toast.error(result.payload || "Cancellation failed", { id: toastId });
+          updateToast.error(toastId, result.payload || "Cancellation failed");
         }
       },
     });
@@ -87,13 +87,13 @@ function MyAppointmentsPage() {
   const getStatusColor = (status) => {
     switch (status) {
       case "BOOKED":
-        return "bg-blue-100 text-blue-800 border-l-4 border-blue-500";
+        return "bg-base-100 text-info border border-info !border-l-4 shadow-lg";
       case "COMPLETED":
-        return "bg-green-100 text-green-800 border-l-4 border-green-500";
+        return "bg-base-100 text-success border border-success !border-l-4 shadow-lg";
       case "CANCELLED":
-        return "bg-red-100 text-red-800 border-l-4 border-red-500";
+        return "bg-base-100 text-error border border-error !border-l-4 shadow-lg";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-base-300 text-base-content";
     }
   };
 
@@ -127,18 +127,18 @@ function MyAppointmentsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-100 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-base-200 text-base-content p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-slate-800 mb-3 flex items-center justify-center gap-2 sm:gap-3">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-base-content mb-3 flex items-center justify-center gap-2 sm:gap-3">
             <svg className="w-8 h-8 sm:w-12 sm:h-12 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
               <polyline points="14 2 14 8 20 8" className="fill-none" stroke="currentColor" strokeWidth="2"/>
             </svg>
             My Appointments
           </h1>
-          <p className="text-slate-600 text-sm sm:text-lg">
+          <p className="text-base-content/70 text-sm sm:text-lg">
             View and manage your scheduled consultations
           </p>
         </div>
@@ -148,21 +148,21 @@ function MyAppointmentsPage() {
           <div className="flex justify-center items-center h-64">
             <div className="text-center">
               <span className="loading loading-bars loading-lg text-blue-600"></span>
-              <p className="mt-4 text-slate-600">Loading appointments...</p>
+              <p className="mt-4 text-base-content/70">Loading appointments...</p>
             </div>
           </div>
         )}
 
         {/* Empty State */}
         {!isLoading && appointments.length === 0 && (
-          <div className="bg-white/95 border border-slate-200 rounded-2xl shadow-lg p-6 sm:p-12 text-center">
+          <div className="bg-base-100 border border-base-300 rounded-2xl shadow-lg p-6 sm:p-12 text-center">
             <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7"/>
             </svg>
-            <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-2">
+            <h3 className="text-xl sm:text-2xl font-semibold text-base-content mb-2">
               No Appointments Yet
             </h3>
-            <p className="text-gray-500 text-sm sm:text-lg">
+            <p className="text-base-content/70 text-sm sm:text-lg">
               You haven't booked any appointments. Head to the booking page to
               schedule one!
             </p>
@@ -230,23 +230,23 @@ function MyAppointmentsPage() {
         {/* Stats Section */}
         {appointments.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 sm:mt-12">
-            <div className="rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 p-6 text-center border-l-4 border-blue-500 shadow-lg\">
-              <div className="text-3xl font-bold text-blue-600\">
+            <div className="rounded-xl bg-base-100 p-6 text-center border-l-4 border-info shadow-lg border border-base-300">
+              <div className="text-3xl font-bold text-info">
                 {appointments.filter((a) => a.status === "BOOKED").length}
               </div>
-              <p className="text-blue-700 font-semibold mt-2\">Booked</p>
+              <p className="text-info font-semibold mt-2">Booked</p>
             </div>
-            <div className="rounded-xl bg-gradient-to-br from-green-50 to-green-100 p-6 text-center border-l-4 border-green-500 shadow-lg\">
-              <div className="text-3xl font-bold text-green-600\">
+            <div className="rounded-xl bg-base-100 p-6 text-center border-l-4 border-success shadow-lg border border-base-300">
+              <div className="text-3xl font-bold text-success">
                 {appointments.filter((a) => a.status === "COMPLETED").length}
               </div>
-              <p className="text-green-700 font-semibold mt-2\">Completed</p>
+              <p className="text-success font-semibold mt-2">Completed</p>
             </div>
-            <div className="rounded-xl bg-gradient-to-br from-red-50 to-red-100 p-6 text-center border-l-4 border-red-500 shadow-lg\">
-              <div className="text-3xl font-bold text-red-600\">
+            <div className="rounded-xl bg-base-100 p-6 text-center border-l-4 border-error shadow-lg border border-base-300">
+              <div className="text-3xl font-bold text-error">
                 {appointments.filter((a) => a.status === "CANCELLED").length}
               </div>
-              <p className="text-red-700 font-semibold mt-2\">Cancelled</p>
+              <p className="text-error font-semibold mt-2">Cancelled</p>
             </div>
           </div>
         )}

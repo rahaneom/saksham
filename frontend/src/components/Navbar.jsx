@@ -36,37 +36,37 @@ function Navbar() {
           </>
         ) : (
           <>
-            <Link to="/dashboard" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors">
+            <Link to="/dashboard" className="btn btn-ghost btn-sm  hover:bg-base-300 transition-colors text-sm">
               Dashboard
             </Link>
-            <Link to="/resources" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors">
+            <Link to="/resources" className="btn btn-ghost btn-sm  hover:bg-base-300 transition-colors text-sm">
               Resources
             </Link>
           {user.role === "ROLE_STUDENT" && (
               <>
-                <Link to="/booking" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors">
+                <Link to="/booking" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors text-sm">
               Booking
             </Link>
-            <Link to="/chatbot" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors">
+            <Link to="/chatbot" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors text-sm">
               Chatbot
             </Link>
-            <Link to="/forum" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors">
+            <Link to="/forum" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors text-sm">
               Forum
             </Link>
 
-            <Link to="/my-appointments" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors">
+            <Link to="/my-appointments" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors text-sm">
               My Appointments
             </Link>
               </>
             )}
             {user.role === "ROLE_COUNSELLOR" && (
-              <Link to="/counsellor" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors">
+              <Link to="/counsellor" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors text-sm">
                 Appointments
               </Link>
             )}
             <button
               onClick={handleLogout}
-              className="btn btn-error btn-sm font-semibold hover:shadow-lg transition-all duration-300"
+              className="btn btn-error btn-sm font-bold px-3 hover:shadow-lg transition-all duration-300"
             >
               Logout
             </button>

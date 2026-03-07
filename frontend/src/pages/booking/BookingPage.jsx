@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import toast from "react-hot-toast";
+import { bookingToast, updateToast } from "../../util/toast";
 import {
   fetchBookingSlots,
   bookSlot,
@@ -11,11 +11,13 @@ import {
   selectBookingStatus,
   selectBookingError,
 } from "../../features/booking/bookingSelectors";
+import { resetBookingStatus } from "../../features/booking/bookingSlice";
 import { SlotCard, ConfirmModal } from "../../components/booking";
 import counsellorImage from "../../assets/counsellor image.png";
 
 function BookingPage() {
   const dispatch = useDispatch();
+  const shownErrorRef = useRef(null);
   const [counsellorInfo] = useState({
     name: "Dr. Counsellor",
     email: "counsellor@university.edu",
@@ -58,11 +60,14 @@ function BookingPage() {
 
   useEffect(() => {
     dispatch(fetchBookingSlots());
+    // Clear any previous errors when component mounts
+    dispatch(resetBookingStatus());
   }, [dispatch]);
 
   useEffect(() => {
-    if (error) {
-      toast.error(error);
+    if (error && error !== shownErrorRef.current) {
+      bookingToast.fetchError(error);
+      shownErrorRef.current = error;
     }
   }, [error]);
 
@@ -93,41 +98,41 @@ function BookingPage() {
       confirmButtonClass: "bg-indigo-600 hover:bg-indigo-700 text-white border-none",
       onConfirm: async () => {
         closeConfirmModal();
-        const toastId = toast.loading("Booking appointment...");
+        const toastId = bookingToast.loading("Booking appointment...");
         const result = await dispatch(bookSlot(slotId));
 
         if (result.meta.requestStatus === "fulfilled") {
-          toast.success("Appointment booked successfully!", { id: toastId });
+          updateToast.success(toastId, "Appointment booked successfully!");
           dispatch(fetchBookingSlots());
         } else {
-          toast.error(result.payload || "Booking failed", { id: toastId });
+          updateToast.error(toastId, result.payload || "Booking failed");
         }
       },
     });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-base-200 text-base-content p-4 sm:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-10">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-800 mb-2 flex items-center justify-center gap-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-base-content mb-2 flex items-center justify-center gap-2">
             <svg className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24">
               <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7h4v2h-4zm0 4h4v2h-4zm-5-8h4v2H9zm0 4h4v2H9zm0 4h4v2H9z"/>
             </svg>
             Book Your Appointment
           </h1>
-          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto">
+          <p className="text-base-content/70 text-sm sm:text-base max-w-2xl mx-auto">
             Choose a time slot that works best for you
           </p>
         </div>
 
         {/* Counsellor Info Card */}
         <div className="max-w-2xl mx-auto mb-4">
-          <div className="card counsellor-card bg-white/90 backdrop-blur-sm text-slate-800 rounded-2xl">
+          <div className="card counsellor-card bg-base-100 text-base-content rounded-2xl border border-base-300">
             <div className="card-body py-4 px-4 sm:px-5">
               {/* Title */}
-              <h2 className="text-xl sm:text-2xl font-bold text-center mb-3 border-b-2 border-slate-700 pb-2">Meet Your Counsellor</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-center mb-3 border-b-2 border-base-content/20 pb-2">Meet Your Counsellor</h2>
               
               {/* Photo on Left, Details on Right */}
               <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
@@ -148,7 +153,7 @@ function BookingPage() {
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
                     </svg>
                     <p className="text-sm sm:text-base text-left leading-snug break-words">
-                      <span className="font-semibold text-slate-600">Name: </span>
+                      <span className="font-semibold text-base-content/70">Name: </span>
                       <span className="font-bold">{counsellorInfo.name}</span>
                     </p>
                   </div>
@@ -159,7 +164,7 @@ function BookingPage() {
                       <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
                     </svg>
                     <p className="text-sm sm:text-base text-left leading-snug break-words">
-                      <span className="font-semibold text-slate-600">Qualifications: </span>
+                      <span className="font-semibold text-base-content/70">Qualifications: </span>
                       <span className="font-bold">{counsellorInfo.qualifications}</span>
                     </p>
                   </div>
@@ -170,7 +175,7 @@ function BookingPage() {
                       <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                     </svg>
                     <p className="text-sm sm:text-base text-left leading-snug break-all">
-                      <span className="font-semibold text-slate-600">Email: </span>
+                      <span className="font-semibold text-base-content/70">Email: </span>
                       <span className="font-bold">{counsellorInfo.email}</span>
                     </p>
                   </div>
@@ -181,7 +186,7 @@ function BookingPage() {
                       <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/>
                     </svg>
                     <p className="text-sm sm:text-base text-left leading-snug break-words">
-                      <span className="font-semibold text-slate-600">Department: </span>
+                      <span className="font-semibold text-base-content/70">Department: </span>
                       <span className="font-bold">{counsellorInfo.department}</span>
                     </p>
                   </div>
@@ -192,7 +197,7 @@ function BookingPage() {
                       <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                     </svg>
                     <p className="text-sm sm:text-base text-left leading-snug break-words">
-                      <span className="font-semibold text-slate-600">Phone: </span>
+                      <span className="font-semibold text-base-content/70">Phone: </span>
                       <span className="font-bold">{counsellorInfo.phone}</span>
                     </p>
                   </div>
@@ -204,7 +209,7 @@ function BookingPage() {
 
         {/* Motivational Card */}
         <div className="max-w-2xl mx-auto mb-4">
-          <div className="card bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 text-white shadow-xl">
+          <div className="card bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 text-white shadow-xl px-6 py-4">
             <div className="card-body p-3 sm:p-2">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center border-2 border-white/40 backdrop-blur-sm">
@@ -229,7 +234,7 @@ function BookingPage() {
           <div className="flex justify-center items-center h-64">
             <div className="text-center">
               <span className="loading loading-bars loading-lg text-indigo-600"></span>
-              <p className="mt-4 text-slate-600">Loading available slots...</p>
+              <p className="mt-4 text-base-content/70">Loading available slots...</p>
             </div>
           </div>
         )}
@@ -240,15 +245,15 @@ function BookingPage() {
             <div className="mb-8">
               <div className="flex flex-wrap items-center gap-2 mb-4">
                 <div className="w-2 h-6 bg-blue-600 rounded mr-2"></div>
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Today <span className="text-sm sm:text-base font-normal text-slate-600">({getTodayDate()})</span></h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-base-content">Today <span className="text-sm sm:text-base font-normal text-base-content/70">({getTodayDate()})</span></h2>
                 <span className="text-xs font-semibold bg-blue-200 text-blue-800 px-2 py-1 rounded-full">
                   {todaySlots.length} slots
                 </span>
               </div>
 
               {todaySlots.length === 0 ? (
-                <div className="bg-white/90 border border-slate-200 rounded-xl p-6 text-center shadow-sm">
-                  <p className="text-slate-500">No slots available for today</p>
+                <div className="bg-base-100 border border-base-300 rounded-xl p-6 text-center shadow-sm">
+                  <p className="text-base-content/70">No slots available for today</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
@@ -267,15 +272,15 @@ function BookingPage() {
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-4">
                 <div className="w-2 h-6 bg-indigo-600 rounded mr-2"></div>
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Tomorrow <span className="text-sm sm:text-base font-normal text-slate-600">({getTomorrowDate()})</span></h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-base-content">Tomorrow <span className="text-sm sm:text-base font-normal text-base-content/70">({getTomorrowDate()})</span></h2>
                 <span className="text-xs font-semibold bg-indigo-200 text-indigo-800 px-2 py-1 rounded-full">
                   {tomorrowSlots.length} slots
                 </span>
               </div>
 
               {tomorrowSlots.length === 0 ? (
-                <div className="bg-white/90 border border-slate-200 rounded-xl p-6 text-center shadow-sm">
-                  <p className="text-slate-500">No slots available for tomorrow</p>
+                <div className="bg-base-100 border border-base-300 rounded-xl p-6 text-center shadow-sm">
+                  <p className="text-base-content/70">No slots available for tomorrow</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">

@@ -2,11 +2,10 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import API from "../../util/api";
 import { uploadResourceFile } from "../../util/supabaseClient";
-import { useToast } from "../../components/useToast";
+import { showToast } from "../../util/toast";
 
 function AddResourceModal({ refresh }) {
 
-  const addToast = useToast();
   const { user } = useSelector((state) => state.auth);
 
   const [form, setForm] = useState({
@@ -42,12 +41,12 @@ function AddResourceModal({ refresh }) {
   const submit = async () => {
 
     if (user?.role !== "ROLE_COUNSELLOR") {
-      addToast({ message: "Only counsellors can upload resources", type: "error" });
+      showToast.error("Only counsellors can upload resources");
       return;
     }
 
     if (!validate()) {
-      addToast({ message: "Fix form errors before submitting", type: "error" });
+      showToast.error("Fix form errors before submitting");
       return;
     }
 
@@ -66,7 +65,7 @@ function AddResourceModal({ refresh }) {
         fileUrl: url,
       });
 
-      addToast({ message: "Resource added successfully", type: "success" });
+      showToast.success("Resource added successfully");
 
       refresh();
 
@@ -85,7 +84,7 @@ function AddResourceModal({ refresh }) {
 
     } catch (err) {
       console.error(err);
-      addToast({ message: "Failed to add resource", type: "error" });
+      showToast.error("Failed to add resource");
     } finally {
       setLoading(false);
     }

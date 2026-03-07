@@ -166,32 +166,32 @@ function ChatbotPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-blue-100 p-2 sm:p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-base-200 text-base-content p-2 sm:p-4 md:p-6 lg:p-8">
       <div className="max-w-5xl mx-auto h-full">
         {/* Header */}
         <div className="text-center mb-4 sm:mb-6 md:mb-8 lg:mb-12">
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 flex items-center justify-center gap-1 sm:gap-2">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-base-content mb-1 sm:mb-2 flex items-center justify-center gap-1 sm:gap-2">
             <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-cyan-600" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 3 .97 4.29L2 22l6-2.24c1.3.6 2.75.97 4.29.97C17.52 22 22 17.52 22 12S17.52 2 12 2zm0 18c-1.41 0-2.73-.36-3.88-.99l-.28-.15-2.89 1.08.84-2.58-.18-.3C4.5 15.43 4 13.8 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"/>
             </svg>
             AI Support Assistant
           </h1>
-          <p className="text-slate-600 text-xs sm:text-sm md:text-base max-w-2xl mx-auto px-2">
+          <p className="text-base-content/70 text-xs sm:text-sm md:text-base max-w-2xl mx-auto px-2">
             Chat with our intelligent assistant for instant support and guidance
           </p>
         </div>
 
         {/* Main Chat Card */}
-        <div className="card bg-white/95 shadow-xl border border-slate-200 rounded-xl sm:rounded-2xl">
+        <div className="card bg-base-100 shadow-xl border border-base-300 rounded-xl sm:rounded-2xl">
           <div className="card-body p-3 sm:p-4 md:p-6">
             {/* Quick Prompts */}
             <div className="mb-3 sm:mb-4 md:mb-6">
-              <p className="text-xs sm:text-sm font-semibold text-slate-600 mb-2 sm:mb-3 uppercase tracking-wide">Quick Questions</p>
+              <p className="text-xs sm:text-sm font-semibold text-base-content/70 mb-2 sm:mb-3 uppercase tracking-wide">Quick Questions</p>
               <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {quickPrompts.map((prompt) => (
                   <span
                     key={prompt}
-                    className="text-xs sm:text-sm text-slate-500 italic"
+                    className="text-xs sm:text-sm text-base-content/70 italic"
                   >
                     {prompt}
                   </span>
@@ -203,12 +203,12 @@ function ChatbotPage() {
             <div className="divider my-2 sm:my-4 md:my-6"></div>
 
             {/* Chat Messages Area */}
-            <div className="h-[calc(100vh-28rem)] sm:h-96 md:h-[28rem] lg:h-[32rem] overflow-y-auto overflow-x-hidden rounded-lg sm:rounded-xl bg-gradient-to-b from-slate-50 to-white p-2 sm:p-4 md:p-6 border border-slate-200/50">
+            <div className="h-[calc(100vh-28rem)] sm:h-96 md:h-[28rem] lg:h-[32rem] overflow-y-auto overflow-x-hidden rounded-lg sm:rounded-xl bg-base-200 p-2 sm:p-4 md:p-6 border border-base-300">
               {isLoadingHistory ? (
                 <div className="flex justify-center items-center h-full">
                   <div className="text-center">
                     <span className="loading loading-spinner loading-lg text-blue-600"></span>
-                    <p className="mt-4 text-slate-600 text-sm">Loading chat history...</p>
+                    <p className="mt-4 text-base-content/70 text-sm">Loading chat history...</p>
                   </div>
                 </div>
               ) : (
@@ -234,7 +234,7 @@ function ChatbotPage() {
                         className={`chat-bubble rounded-md sm:rounded-lg md:rounded-xl shadow-sm max-w-[75vw] sm:max-w-xs md:max-w-md text-xs sm:text-sm md:text-base leading-snug sm:leading-relaxed ${
                           message.role === "user"
                             ? "bg-blue-600 text-white rounded-br-none"
-                            : "bg-slate-200 text-slate-800 rounded-bl-none"
+                            : "bg-base-300 text-base-content rounded-bl-none"
                         }`}
                       >
                         {message.text}
@@ -249,7 +249,7 @@ function ChatbotPage() {
                           <span>AI</span>
                         </div>
                       </div>
-                      <div className="chat-bubble bg-slate-200 text-slate-800 rounded-bl-none rounded-md sm:rounded-lg md:rounded-xl shadow-sm">
+                      <div className="chat-bubble bg-base-300 text-base-content rounded-bl-none rounded-md sm:rounded-lg md:rounded-xl shadow-sm">
                         <span className="loading loading-dots loading-xs sm:loading-sm"></span>
                       </div>
                     </div>
@@ -283,14 +283,14 @@ function ChatbotPage() {
         </div>
 
         {/* Info Card */}
-        <div className="mt-4 sm:mt-6 md:mt-8 bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 shadow-sm">
+        <div className="mt-4 sm:mt-6 md:mt-8 bg-info/10 border border-info/30 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 shadow-sm">
           <div className="flex gap-2 sm:gap-3">
             <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
             </svg>
             <div>
-              <p className="text-xs sm:text-sm font-semibold text-blue-900 mb-0.5 sm:mb-1">Note</p>
-              <p className="text-[10px] sm:text-xs md:text-sm text-blue-800 leading-snug sm:leading-normal">
+              <p className="text-xs sm:text-sm font-semibold text-info mb-0.5 sm:mb-1">Note</p>
+              <p className="text-[10px] sm:text-xs md:text-sm text-base-content/80 leading-snug sm:leading-normal">
                 This chatbot is powered by AI and provides general support. For urgent concerns, please contact your counsellor directly through the booking page.
               </p>
             </div>

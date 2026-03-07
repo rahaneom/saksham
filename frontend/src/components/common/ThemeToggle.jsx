@@ -1,21 +1,37 @@
 import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
 
+const normalizeTheme = (value) => {
+  if (value === "dark") return "dracula";
+  if (value === "light") return "winter";
+  if (value === "dracula" || value === "winter" || value === "synthwave") {
+    return value;
+  }
+  return "winter";
+};
+
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
+  const [theme, setTheme] = useState(() => normalizeTheme(localStorage.getItem("theme")));
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
+    const normalizedTheme = normalizeTheme(theme);
+    document.documentElement.setAttribute("data-theme", normalizedTheme);
+    localStorage.setItem("theme", normalizedTheme);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    setTheme((prevTheme) => (normalizeTheme(prevTheme) === "winter" ? "dracula" : "winter"));
   };
 
   return (
-    <button onClick={toggleTheme} className="btn btn-sm btn-circle btn-ghost">
-      {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+    <button
+      type="button"
+      onClick={toggleTheme}
+      className="btn btn-sm btn-circle btn-ghost"
+      aria-label="Toggle theme"
+      title="Toggle light and dark mode"
+    >
+      {normalizeTheme(theme) === "dracula" ? <Sun size={18} /> : <Moon size={18} />}
     </button>
   );
 }

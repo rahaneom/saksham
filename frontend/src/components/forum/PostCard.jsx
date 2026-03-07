@@ -9,6 +9,7 @@ import {
   editComment,
   deleteComment,
 } from "../../features/forum/forumSlice";
+import { forumToast } from "../../util/toast";
 
 function PostCard({
   post,
@@ -49,7 +50,11 @@ function PostCard({
     setShowComments(!showComments);
 
     if (!showComments) {
-      dispatch(fetchComments(post.id));
+      dispatch(fetchComments(post.id)).then((res) => {
+        if (res.meta.requestStatus === "rejected") {
+          forumToast.fetchError(res.payload || "Error fetching comments");
+        }
+      });
     }
   };
 
@@ -67,24 +72,41 @@ function PostCard({
         content: editText,
         postId: post.id,
       }),
-    );
-
-    setEditingId(null);
-    setEditText("");
+    ).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        forumToast.editCommentSuccess();
+        setEditingId(null);
+        setEditText("");
+      } else {
+        forumToast.editCommentError(res.payload || "Error editing comment");
+      }
+    });
   };
 
   const handleDelete = (commentId) => {
-    dispatch(deleteComment({ commentId, postId: post.id }));
-    setDeleteId(null);
-    document.getElementById(`delete_modal_${post.id}`).close();
+    dispatch(deleteComment({ commentId, postId: post.id })).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        forumToast.deleteCommentSuccess();
+        setDeleteId(null);
+        document.getElementById(`delete_modal_${post.id}`).close();
+      } else {
+        forumToast.deleteCommentError(res.payload || "Delete failed");
+      }
+    });
   };
 
   // HANDLE ADD COMMENT
   const handleAddComment = () => {
     if (!commentText.trim()) return;
 
-    dispatch(addComment({ postId: post.id, content: commentText }));
-    setCommentText("");
+    dispatch(addComment({ postId: post.id, content: commentText })).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        forumToast.addCommentSuccess();
+        setCommentText("");
+      } else {
+        forumToast.addCommentError(res.payload || "Error adding comment");
+      }
+    });
   };
 
   return (
@@ -161,8 +183,11 @@ function PostCard({
               <button
                 className="p-4 mt-2 btn btn-xs btn-success"
                 onClick={() => {
-                  onEditPost(post.id, editPostText);
-                  setEditingPost(false);
+                  onEditPost(post.id, editPostText).then((updated) => {
+                    if (updated) {
+                      setEditingPost(false);
+                    }
+                  });
                 }}
               >
                 Save
@@ -400,8 +425,11 @@ function PostCard({
             <button
               className="p-3 btn btn-md btn-error"
               onClick={() => {
-                onDeletePost(deletePostId);
-                document.getElementById(`delete_post_modal_${post.id}`).close();
+                onDeletePost(deletePostId).then((deleted) => {
+                  if (deleted) {
+                    document.getElementById(`delete_post_modal_${post.id}`).close();
+                  }
+                });
               }}
             >
               Delete

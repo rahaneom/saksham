@@ -9,13 +9,13 @@ function SlotCard({ slot, onBook }) {
   };
 
   return (
-    <div className="card bg-white/95 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 aspect-square rounded-xl">
+    <div className="card bg-base-100 border border-base-300 shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 aspect-square rounded-xl">
       <div className="card-body p-2 sm:p-3 flex flex-col justify-between">
         <div className="text-center">
-          <p className="text-sm sm:text-base font-bold text-slate-800 tracking-tight">
+          <p className="text-sm sm:text-base font-bold text-base-content tracking-tight">
             {formatTime(slot.startTime)}
           </p>
-          <p className="text-xs sm:text-sm text-slate-500 mb-2">
+          <p className="text-xs sm:text-sm text-base-content/70 mb-2">
             to {formatTime(slot.endTime)}
           </p>
         </div>
@@ -37,8 +37,8 @@ function SlotCard({ slot, onBook }) {
             </button>
           </>
         ) : (
-          <button
-            className="btn btn-xs sm:btn-sm w-full bg-gray-400 text-gray-600 border-none py-1 rounded-md cursor-not-allowed"
+            <button
+              className="btn btn-xs sm:btn-sm w-full btn-disabled py-1 rounded-md cursor-not-allowed bg-slate-500"
             disabled
           >
             Taken

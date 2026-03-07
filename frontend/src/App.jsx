@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
+import { Toaster } from "react-hot-toast";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import Landing from "./pages/Landing";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
@@ -17,12 +19,19 @@ import ForumPage from "./pages/forum/ForumPage";
 function App() {
   useEffect(() => {
     // Initialize theme from localStorage
-    const savedTheme = localStorage.getItem("theme") || "winter";
-    document.querySelector("html").setAttribute("data-theme", savedTheme);
+    const savedTheme = localStorage.getItem("theme");
+    const normalizedTheme =
+      savedTheme === "dark" || savedTheme === "dracula"
+        ? "dark"
+        : "light"; // default to light theme
+
+    document.documentElement.setAttribute("data-theme", normalizedTheme);
+    localStorage.setItem("theme", normalizedTheme);
   }, []);
 
   return (
     <BrowserRouter>
+      <Toaster position="top-right" />
       <Navbar />
 
       <Routes>
@@ -93,6 +102,8 @@ function App() {
           }
         />
       </Routes>
+
+      <Footer />
     </BrowserRouter>
   );
 }

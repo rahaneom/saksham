@@ -27,7 +27,7 @@ body {
 
 .btn:active {
   @apply transform scale-95;
-}
+} 
 
 /* Card animations */
 .card {

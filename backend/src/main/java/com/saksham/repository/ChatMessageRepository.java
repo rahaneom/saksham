@@ -14,5 +14,7 @@ public interface ChatMessageRepository
 
     void deleteByCreatedAtBefore(LocalDateTime cutoff);
     
+    void deleteByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
+    
     List<ChatMessage> findByUserAndCreatedAtAfterOrderByCreatedAtAsc(User user, LocalDateTime createdAt);
 }

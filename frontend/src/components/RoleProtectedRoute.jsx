@@ -1,17 +1,16 @@
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
-import { useToast } from "./useToast";
+import { showToast } from "../util/toast";
 function RoleProtectedRoute({ children, allowedRole }) {
   const { user } = useSelector((state) => state.auth);
-  const addToast = useToast();
 
   if (!user) {
-    addToast({ message: "Please login first", type: "error" });
+    showToast.error("Please login first");
     return <Navigate to="/login" />;
   }
 
   if (user.role !== allowedRole) {
-    addToast({ message: "Access denied", type: "error" });
+    showToast.error("Access denied");
     return <Navigate to="/resources" />;
   }
 

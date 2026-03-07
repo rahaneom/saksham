@@ -2,11 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { registerUser } from "../../services/authService";
-import { useToast } from "../../components/useToast";
+import { authToast, updateToast } from "../../util/toast";
 
 function Register() {
   const navigate = useNavigate();
-  const addToast = useToast();
   const { user } = useSelector((state) => state.auth);
   const [form, setForm] = useState({
     name: "",
@@ -77,19 +76,20 @@ function Register() {
       if (k !== "role") valid = validateField(k, v) && valid;
     });
     if (!valid) {
-      addToast({ message: "Please fix the errors below", type: "error" });
+      authToast.validationError("Please fix the errors below");
       return;
     }
     setIsLoading(true);
+    const toastId = authToast.loading("Creating account...");
     try {
       const { confirmPassword, ...registerData } = form;
       await registerUser(registerData);
-      addToast({ message: "Registration successful! Redirecting to login...", type: "success" });
+      updateToast.success(toastId, "Registration successful! Redirecting to login...");
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
       console.error(err);
       const errorMsg = err.response?.data?.message || err.response?.data?.error || "Registration failed";
-      addToast({ message: errorMsg, type: "error" });
+      updateToast.error(toastId, errorMsg);
     } finally {
       setIsLoading(false);
     }

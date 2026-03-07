@@ -1,10 +1,9 @@
 import { useState } from "react";
 import API from "../../util/api";
-import { useToast } from "../../components/useToast";
+import { showToast } from "../../util/toast";
 import { Video, FileText, Music, BookOpen } from "lucide-react";
 
 function ResourceCard({ resource, isCounsellor, refresh }) {
-  const addToast = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -13,11 +12,11 @@ function ResourceCard({ resource, isCounsellor, refresh }) {
     setIsDeleting(true);
     try {
       await API.delete(`/resources/${resource.id}`);
-      addToast({ message: "Resource deleted successfully", type: "success" });
+      showToast.success("Resource deleted successfully");
       refresh();
     } catch (err) {
       console.error(err);
-      addToast({ message: "Failed to delete resource", type: "error" });
+      showToast.error("Failed to delete resource");
     } finally {
       setIsDeleting(false);
     }
