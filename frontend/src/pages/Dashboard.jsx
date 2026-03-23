@@ -45,7 +45,7 @@ function Dashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="mb-12 animate-slideDown">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-3 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
             Welcome, {user?.email?.split("@")[0]}!
           </h1>
           <p className="text-lg text-base-content/70 max-w-2xl">

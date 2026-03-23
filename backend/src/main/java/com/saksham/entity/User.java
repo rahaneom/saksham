@@ -54,6 +54,11 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(length = 120)
+    private String passwordResetToken;
+
+    private LocalDateTime passwordResetTokenExpiry;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;

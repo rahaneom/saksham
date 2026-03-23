@@ -129,7 +129,7 @@ const ForumPage = () => {
         <div className="flex items-center justify-center gap-3">
           <Users size={32} className="text-primary" />
 
-          <h1 className="text-3xl font-bold tracking-wide text-base-content">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-wide text-base-content">
             Anonymous Peer Forum
           </h1>
         </div>

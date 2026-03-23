@@ -116,7 +116,7 @@ function BookingPage() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-10">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-base-content mb-2 flex items-center justify-center gap-2">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-base-content mb-2 flex items-center justify-center gap-2">
             <svg className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24">
               <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7h4v2h-4zm0 4h4v2h-4zm-5-8h4v2H9zm0 4h4v2H9zm0 4h4v2H9z"/>
             </svg>

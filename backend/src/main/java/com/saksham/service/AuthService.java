@@ -1,5 +1,12 @@
 package com.saksham.service;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.MailException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +25,16 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final AliasService aliasService;
+    private final JavaMailSender mailSender;
+
+    @Value("${app.frontend.reset-password-url:http://localhost:5173/reset-password}")
+    private String resetPasswordUrl;
+
+    @Value("${spring.mail.username:}")
+    private String mailUsername;
+
+    @Value("${spring.mail.password:}")
+    private String mailPassword;
 
     // Regsiter user
     public String register(RegisterRequest request) {
@@ -84,5 +101,69 @@ public class AuthService {
         }
         userRepository.save(user);
         return "User updated successfully!";
+    }
+
+    public String requestPasswordReset(ForgotPasswordRequest request) {
+        if (request.getEmail() == null || request.getEmail().isBlank()) {
+            throw new RuntimeException("Email is required");
+        }
+
+        if (mailUsername == null || mailUsername.isBlank() || mailPassword == null || mailPassword.isBlank()) {
+            throw new RuntimeException("Email service not configured. Set MAIL_USERNAME and MAIL_PASSWORD.");
+        }
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Account with this email does not exist"));
+
+        String token = UUID.randomUUID().toString();
+        user.setPasswordResetToken(token);
+        user.setPasswordResetTokenExpiry(LocalDateTime.now().plusMinutes(30));
+        userRepository.save(user);
+
+        String resetLink = resetPasswordUrl + "?token=" + token;
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(user.getEmail());
+        message.setSubject("Saksham - Reset Your Password");
+        message.setText(
+                "Hi " + user.getName() + ",\n\n"
+                        + "We received a request to reset your password.\n"
+                        + "Click the link below to set a new password:\n\n"
+                        + resetLink + "\n\n"
+                        + "This link is valid for 30 minutes.\n"
+                        + "If you didn't request this, you can ignore this email.\n\n"
+                        + "Thanks,\nSaksham Team"
+        );
+        try {
+            mailSender.send(message);
+        } catch (MailException ex) {
+            throw new RuntimeException("Failed to send reset email. Check Gmail app password configuration.");
+        }
+
+        return "Password reset email sent successfully";
+    }
+
+    public String resetPassword(ResetPasswordRequest request) {
+        if (request.getNewPassword() == null || request.getNewPassword().length() < 6) {
+            throw new RuntimeException("Password must be at least 6 characters");
+        }
+
+        User user = userRepository.findByPasswordResetToken(request.getToken())
+                .orElseThrow(() -> new RuntimeException("Invalid reset token"));
+
+        if (user.getPasswordResetTokenExpiry() == null
+                || user.getPasswordResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            user.setPasswordResetToken(null);
+            user.setPasswordResetTokenExpiry(null);
+            userRepository.save(user);
+            throw new RuntimeException("Reset token has expired");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setPasswordResetToken(null);
+        user.setPasswordResetTokenExpiry(null);
+        userRepository.save(user);
+
+        return "Password updated successfully";
     }
 }

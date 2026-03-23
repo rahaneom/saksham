@@ -170,7 +170,7 @@ function ChatbotPage() {
       <div className="max-w-5xl mx-auto h-full">
         {/* Header */}
         <div className="text-center mb-4 sm:mb-6 md:mb-8 lg:mb-12">
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-base-content mb-1 sm:mb-2 flex items-center justify-center gap-1 sm:gap-2">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-base-content mb-1 sm:mb-2 flex items-center justify-center gap-1 sm:gap-2">
             <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-cyan-600" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 3 .97 4.29L2 22l6-2.24c1.3.6 2.75.97 4.29.97C17.52 22 22 17.52 22 12S17.52 2 12 2zm0 18c-1.41 0-2.73-.36-3.88-.99l-.28-.15-2.89 1.08.84-2.58-.18-.3C4.5 15.43 4 13.8 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"/>
             </svg>

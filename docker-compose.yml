@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  backend:
+    image: saksham-backend
+    container_name: saksham-backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+
+  frontend:
+    image: saksham-frontend
+    container_name: saksham-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend

@@ -4,7 +4,6 @@ import com.saksham.dto.*;
 import com.saksham.service.AuthService;
 import lombok.RequiredArgsConstructor;
 
-import org.hibernate.sql.Update;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,6 +26,16 @@ public class AuthController {
     @PutMapping("/update")
     public String updateUser(@RequestBody UpdateUserRequest request){
         return authService.updateUser(request);
+    }
+
+    @PostMapping("/forgot-password")
+    public String forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        return authService.requestPasswordReset(request);
+    }
+
+    @PostMapping("/reset-password")
+    public String resetPassword(@RequestBody ResetPasswordRequest request) {
+        return authService.resetPassword(request);
     }
     
 }

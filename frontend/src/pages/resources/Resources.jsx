@@ -49,8 +49,9 @@ function Resources() {
     <div className="min-h-screen bg-gradient-to-br from-base-100 via-base-100 to-base-200 py-8 px-4 sm:px-6 lg:px-8 animate-fadeIn">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8 animate-slideDown">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-3 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+        <div className="mb-8 animate-slideDown text-center">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 text-base-content  flex items-center justify-center gap-3">
+            <BookOpen size={36} className="text-primary" />
             Wellness Resources
           </h1>
           <p className="text-lg text-base-content/70">
