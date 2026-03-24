@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: "https://saksham-backend-fcd5.onrender.com/api",
 });
 
 API.interceptors.request.use((req) => {
