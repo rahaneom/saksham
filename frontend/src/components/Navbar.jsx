@@ -84,25 +84,25 @@ function Navbar() {
           </>
         ) : (
           <>
-            <Link to="/dashboard" className={`${navActionClass} text-sm`}>
+            {/* <Link to="/dashboard" className={`${navActionClass} text-sm`}>
               Dashboard
-            </Link>
-            <Link to="/resources" className={`${navActionClass} text-sm`}>
+            </Link> */}
+            <Link to="/resources" className={`${navActionClass} text-base`}>
               Resources
             </Link>
           {user.role === "ROLE_STUDENT" && (
               <>
-                <Link to="/booking" className={`${navActionClass} text-sm`}>
+                <Link to="/booking" className={`${navActionClass} text-base`}>
               Booking
             </Link>
-            <Link to="/chatbot" className={`${navActionClass} text-sm`}>
+            <Link to="/chatbot" className={`${navActionClass} text-base`}>
               Chatbot
             </Link>
-            <Link to="/forum" className={`${navActionClass} text-sm`}>
+            <Link to="/forum" className={`${navActionClass} text-base`}>
               Forum
             </Link>
 
-            <Link to="/my-appointments" className={`${navActionClass} text-sm`}>
+            <Link to="/my-appointments" className={`${navActionClass} text-base`}>
               My Appointments
             </Link>
               </>
@@ -162,11 +162,11 @@ function Navbar() {
                 </>
               ) : (
                 <>
-                  <li>
+                  {/* <li>
                     <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
                       Dashboard
                     </Link>
-                  </li>
+                  </li> */}
                   <li>
                     <Link to="/resources" onClick={() => setIsMenuOpen(false)}>
                       Resources

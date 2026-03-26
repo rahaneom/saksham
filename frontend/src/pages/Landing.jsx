@@ -2,6 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import homeCircular from "../assets/home circular.png";
+import skyBg from "../assets/sky.png";
+import emojiOne from "../assets/imgi_154_Frame_370079.svg";
+import emojiTwo from "../assets/imgi_157_Frame_370079__2_.svg";
+import emojiThree from "../assets/imgi_158_Frame_370346.svg";
+import emojiFour from "../assets/imgi_159_Frame_370079__1_.svg";
 import {
   BookOpen,
   Users,
@@ -109,8 +114,9 @@ function Landing() {
   return (
     <div className="min-h-screen bg-base-100 animate-fadeIn">
       {/* Hero Section */}
-      <section className="relative min-h-[86vh] flex items-center overflow-hidden px-4 py-20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(125,211,252,0.25),transparent_35%),radial-gradient(circle_at_75%_35%,rgba(186,230,253,0.2),transparent_40%),radial-gradient(circle_at_50%_80%,rgba(153,246,228,0.16),transparent_40%),linear-gradient(140deg,#0c3f61_0%,#0a4d6d_45%,#0f5b63_100%)]"></div>
+      <section className="relative min-h-[106vh] flex items-center overflow-hidden px-4 py-32">
+        {/* <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(125,211,252,0.25),transparent_35%),radial-gradient(circle_at_75%_35%,rgba(186,230,253,0.2),transparent_40%),radial-gradient(circle_at_50%_80%,rgba(153,246,228,0.16),transparent_40%),linear-gradient(140deg,#0c3f61_0%,#0a4d6d_45%,#0f5b63_100%)]"></div> */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(125,211,252,0.25),transparent_35%),radial-gradient(circle_at_75%_35%,rgba(186,230,253,0.2),transparent_40%),radial-gradient(circle_at_50%_80%,rgba(153,246,228,0.16),transparent_40%),linear-gradient(140deg,#9c8a74_0%,#ae936b_45%,#e7c4a5_100%)]"></div>
         <div className="absolute inset-0 opacity-25 [background-image:radial-gradient(rgba(255,255,255,0.24)_1px,transparent_1px)] [background-size:22px_22px]"></div>
         <div className="absolute -top-10 right-[-8%] h-80 w-80 rounded-full bg-sky-200/20 blur-3xl"></div>
         <div className="absolute top-[28%] right-[16%] h-72 w-72 rounded-full bg-indigo-200/20 blur-2xl"></div>
@@ -251,7 +257,7 @@ function Landing() {
       </div>
 
       {/* Well-Being Continuum Section */}
-      <section className=" py-8 px-4">
+      <section className="bg-[#f5f2ed] py-8 px-4">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-extrabold text-center text-slate-900 mb-4 tracking-tight">
             Well-Being Continuum
@@ -295,6 +301,45 @@ function Landing() {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      {/* Bottom Sky CTA Section */}
+      <section className="bg-[#f5f2ed] px-4 pb-16 pt-8">
+        <div
+          className="relative max-w-6xl mx-auto rounded-[2rem] overflow-hidden min-h-[300px] md:min-h-[500px] shadow-[0_24px_60px_rgba(10,77,109,0.2)]"
+          style={{
+            backgroundImage: `linear-gradient(120deg,rgba(10,77,109,0.22),rgba(79,155,220,0.1)),url(${skyBg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_25%,rgba(255,255,255,0.2),transparent_35%),radial-gradient(circle_at_80%_75%,rgba(255,255,255,0.16),transparent_40%)]"></div>
+
+          <div className="relative z-10 h-full px-6 md:px-12 py-24 flex flex-col items-center justify-center text-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/15 backdrop-blur-sm px-4 py-2 mb-6">
+              <img src={emojiOne} alt="mood icon" className="h-6 w-6" />
+              <img src={emojiTwo} alt="mood icon" className="h-6 w-6 -ml-2" />
+              <img src={emojiThree} alt="mood icon" className="h-6 w-6 -ml-2" />
+              <span className="text-white/95 font-semibold tracking-wide text-sm md:text-base ml-1">Join thousands improving daily</span>
+            </div>
+
+            <h3 className="text-white text-3xl sm:text-4xl md:text-6xl font-bold leading-[1.08] max-w-4xl drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)]">
+              Build healthier habits with Saksham every day
+            </h3>
+
+            <Link
+              to={user ? "/resources" : "/register"}
+              className="mt-8 inline-flex items-center justify-center rounded-full bg-[#2e2f33] hover:bg-[#242529] text-white font-bold px-8 py-3 text-base md:text-lg transition-all duration-300 hover:-translate-y-0.5"
+            >
+              {user ? "Explore Now" : "Get Started Free"}
+            </Link>
+          </div>
+
+          <img src={emojiOne} alt="emoji bubble" className="absolute z-10 h-14 w-14 md:h-16 md:w-16 left-10 md:left-16 top-12 rounded-full bg-white/85 p-2 backdrop-blur-sm shadow-lg" />
+          <img src={emojiTwo} alt="emoji bubble" className="absolute z-10 h-14 w-14 md:h-16 md:w-16 right-8 md:right-16 top-16 rounded-full bg-white/85 p-2 backdrop-blur-sm shadow-lg" />
+          <img src={emojiThree} alt="emoji bubble" className="absolute z-10 h-14 w-14 md:h-16 md:w-16 left-24 md:left-48 bottom-10 rounded-full bg-white/85 p-2 backdrop-blur-sm shadow-lg" />
+          <img src={emojiFour} alt="emoji bubble" className="absolute z-10 h-14 w-14 md:h-16 md:w-16 right-10 md:right-40 bottom-10 rounded-full bg-white/85 p-2 backdrop-blur-sm shadow-lg" />
         </div>
       </section>
 
