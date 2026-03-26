@@ -192,24 +192,35 @@ function Landing() {
               </div>
             </div>
 
-            <a href="#offerings" className="inline-flex items-center gap-2 text-slate-100/90 hover:text-white transition-colors">
-              <span className="h-14 w-14 rounded-full border border-cyan-300/60 grid place-items-center bg-white/5 backdrop-blur-sm">
-                <ArrowDown size={26} strokeWidth={1.5} />
-              </span>
-            </a>
           </div>
         </div>
 
-        {/* Wave divider */}
-        <svg className="absolute bottom-0 left-0 w-full h-40" viewBox="0 0 1440 160" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0,80 Q180,40 360,80 T720,80 T1080,80 T1440,80 L1440,160 L0,160 Z" fill="#0f5b63" opacity="0.95" />
-          <path d="M0,100 Q180,60 360,100 T720,100 T1080,100 T1440,100 L1440,160 L0,160 Z" fill="#0c3f61" opacity="0.5" />
-          <path d="M0,90 Q360,30 720,90 T1440,90 L1440,160 L0,160 Z" fill="#0a7a8b" opacity="0.3" />
+        <a
+          href="#offerings"
+          className="absolute left-1/2 -translate-x-1/2 bottom-40 z-20 inline-flex items-center justify-center text-slate-100/90 hover:text-white transition-colors"
+        >
+          <span className="h-14 w-14 rounded-full border border-cyan-300/60 grid place-items-center bg-white/5 backdrop-blur-sm">
+            <ArrowDown size={26} strokeWidth={1.5} />
+          </span>
+        </a>
+
+        {/* Inverted Curve (Hero Bottom Cut) */}
+        <svg
+          className="pointer-events-none absolute -bottom-px left-0 w-full h-[150px] md:h-[170px] z-[2]"
+          viewBox="0 0 1440 320"
+          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            fill="#f5f2ed"
+            d="M0,0L48,32C96,64,192,128,288,160C384,192,480,192,576,165.3C672,139,768,85,864,85.3C960,85,1056,139,1152,149.3C1248,160,1344,128,1392,112L1440,96L1440,320L0,320Z"
+          />
         </svg>
       </section>
 
       {/* Features Section */}
-      <div id="offerings" className="bg-base-100 py-20 px-4 relative">
+      <div id="offerings" className="bg-[#f5f2ed] py-20 px-4 relative">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12 animate-slideUp">What We Offer</h2>
 
