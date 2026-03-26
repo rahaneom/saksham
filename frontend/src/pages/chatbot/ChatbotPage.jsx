@@ -166,7 +166,7 @@ function ChatbotPage() {
   };
 
   return (
-    <div className="min-h-screen bg-base-200 text-base-content p-2 sm:p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-[#f5f2ed] text-base-content p-2 sm:p-4 md:p-6 lg:p-8">
       <div className="max-w-5xl mx-auto h-full">
         {/* Header */}
         <div className="text-center mb-4 sm:mb-6 md:mb-8 lg:mb-12">

@@ -147,7 +147,7 @@ function CounsellorDashboard() {
   }, [statusFilter, page]);
 
   return (
-    <div className="min-h-screen bg-base-200 text-base-content p-4 sm:p-6">
+    <div className="min-h-screen bg-[#f5f2ed] text-base-content p-4 sm:p-6">
       <div className="max-w-6xl mx-auto space-y-6">
 
         {/* Header */}

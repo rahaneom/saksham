@@ -10,6 +10,7 @@
 
 html {
   scroll-behavior: smooth;
+  background-color: #f5f2ed;
 }
 
 body {
@@ -17,6 +18,11 @@ body {
   font-family: 'Quicksand', sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
+  background-color: #f5f2ed;
+}
+
+#root {
+  background-color: #f5f2ed;
 }
 
 

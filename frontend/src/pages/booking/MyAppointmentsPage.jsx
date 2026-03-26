@@ -127,7 +127,7 @@ function MyAppointmentsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-base-200 text-base-content p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-[#f5f2ed] text-base-content p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
