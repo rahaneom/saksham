@@ -17,7 +17,7 @@ function Login() {
 
   useEffect(() => {
     if (user) {
-      navigate("/dashboard", { replace: true });
+      navigate("/", { replace: true });
     }
   }, [user, navigate]);
 
@@ -55,7 +55,7 @@ function Login() {
       const res = await loginUser(form);
       dispatch(loginSuccess(res.data.token));
       updateToast.success(toastId, "Login successful! Redirecting...");
-      setTimeout(() => navigate("/dashboard"), 500);
+      setTimeout(() => navigate("/"), 500);
     } catch (err) {
       console.error(err);
       updateToast.error(

@@ -2,32 +2,80 @@ import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/auth/authSlice";
 import ThemeToggle from "./ThemeToggle";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 function Navbar() {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDarkTheme, setIsDarkTheme] = useState(() =>
+    document.documentElement.getAttribute("data-theme") === "dark",
+  );
+  const isHomePage = location.pathname === "/";
 
   const handleLogout = () => {
     dispatch(logout());
     setIsMenuOpen(false);
   };
 
+  useEffect(() => {
+    const root = document.documentElement;
+    const updateThemeFlag = () => {
+      setIsDarkTheme(root.getAttribute("data-theme") === "dark");
+    };
+
+    updateThemeFlag();
+
+    const observer = new MutationObserver(updateThemeFlag);
+    observer.observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const homeTextClass = isDarkTheme ? "text-slate-100" : "text-slate-800";
+  const homeHoverClass = isDarkTheme
+    ? "hover:text-white hover:bg-white/12 hover:border-white/25"
+    : "hover:text-slate-900 hover:bg-slate-900/10 hover:border-slate-700/20";
+
+  const navClass = isHomePage
+    ? "fixed top-0 left-0 w-full bg-gradient-to-b from-[#0c3f61]/45 via-[#0c4e73]/22 to-transparent backdrop-blur-lg backdrop-saturate-150 border-b border-white/20 shadow-[0_8px_24px_rgba(12,63,97,0.2)]"
+    : "sticky top-0 bg-base-100/80 backdrop-blur-md shadow-md border-b border-base-300";
+
+  const navActionClass = isHomePage
+    ? `btn btn-ghost btn-sm font-semibold ${homeTextClass} ${homeHoverClass} border border-transparent transition-colors`
+    : "btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors";
+
+  const mobileMenuClass = isHomePage
+    ? isDarkTheme
+      ? "dropdown-content z-[1] menu p-2 shadow-lg bg-[#0d4b6a]/90 text-slate-100 rounded-box w-52 border border-white/20 backdrop-blur-md animate-slideDown"
+      : "dropdown-content z-[1] menu p-2 shadow-lg bg-white/95 text-slate-800 rounded-box w-52 border border-slate-300/80 backdrop-blur-md animate-slideDown"
+    : "dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 border border-base-300 animate-slideDown";
+
   return (
-    <nav className="navbar bg-base-100/80 backdrop-blur-md sticky top-0 z-50 shadow-md border-b border-base-300 px-4 sm:px-6 py-3 transition-all duration-300 animate-slideDown">
+    <nav
+      className={`navbar px-4 sm:px-6 py-3 z-50 transition-all duration-300 animate-slideDown ${navClass}`}
+    >
       <div className="flex-1">
-        <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent hover:opacity-80 transition-opacity">
+        <Link
+          to="/"
+          className={`text-2xl font-bold hover:opacity-90 transition-opacity ${
+            isHomePage
+              ? "bg-gradient-to-r from-cyan-100 via-sky-100 to-white bg-clip-text text-transparent"
+              : "bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
+          }`}
+        >
           Saksham
         </Link>
       </div>
 
       {/* Desktop Menu */}
-      <div className="hidden md:flex gap-2 items-center">
+      <div className={`hidden md:flex gap-2 items-center ${isHomePage ? homeTextClass : ""}`}>
         <ThemeToggle />
         {!user ? (
           <>
-            <Link to="/login" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors">
+            <Link to="/login" className={navActionClass}>
               Sign In
             </Link>
             <Link to="/register" className="btn btn-primary btn-sm font-semibold">
@@ -36,37 +84,41 @@ function Navbar() {
           </>
         ) : (
           <>
-            <Link to="/dashboard" className="btn btn-ghost btn-sm  hover:bg-base-300 transition-colors text-sm">
+            <Link to="/dashboard" className={`${navActionClass} text-sm`}>
               Dashboard
             </Link>
-            <Link to="/resources" className="btn btn-ghost btn-sm  hover:bg-base-300 transition-colors text-sm">
+            <Link to="/resources" className={`${navActionClass} text-sm`}>
               Resources
             </Link>
           {user.role === "ROLE_STUDENT" && (
               <>
-                <Link to="/booking" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors text-sm">
+                <Link to="/booking" className={`${navActionClass} text-sm`}>
               Booking
             </Link>
-            <Link to="/chatbot" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors text-sm">
+            <Link to="/chatbot" className={`${navActionClass} text-sm`}>
               Chatbot
             </Link>
-            <Link to="/forum" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors text-sm">
+            <Link to="/forum" className={`${navActionClass} text-sm`}>
               Forum
             </Link>
 
-            <Link to="/my-appointments" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors text-sm">
+            <Link to="/my-appointments" className={`${navActionClass} text-sm`}>
               My Appointments
             </Link>
               </>
             )}
             {user.role === "ROLE_COUNSELLOR" && (
-              <Link to="/counsellor" className="btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors text-sm">
+              <Link to="/counsellor" className={`${navActionClass} text-sm`}>
                 Appointments
               </Link>
             )}
             <button
               onClick={handleLogout}
-              className="btn btn-error btn-sm font-bold px-3 hover:shadow-lg transition-all duration-300"
+              className={`btn btn-sm font-bold px-3 hover:shadow-lg transition-all duration-300 ${
+                isHomePage
+                  ? "bg-rose-100 text-rose-800 border-0 hover:bg-white"
+                  : "btn-error"
+              }`}
             >
               Logout
             </button>
@@ -80,7 +132,13 @@ function Navbar() {
         <div className="dropdown dropdown-end">
           <button
             tabIndex={0}
-            className="btn btn-ghost btn-circle"
+            className={`btn btn-ghost btn-circle ${
+              isHomePage
+                ? isDarkTheme
+                  ? "text-slate-100 hover:bg-white/15"
+                  : "text-slate-800 hover:bg-slate-900/10"
+                : ""
+            }`}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,7 +146,7 @@ function Navbar() {
             </svg>
           </button>
           {isMenuOpen && (
-            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 border border-base-300 animate-slideDown">
+            <ul tabIndex={0} className={mobileMenuClass}>
               {!user ? (
                 <>
                   <li>
