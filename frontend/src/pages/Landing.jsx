@@ -116,7 +116,7 @@ function Landing() {
       {/* Hero Section */}
       <section className="relative min-h-[106vh] flex items-center overflow-hidden px-4 py-32">
         {/* <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(125,211,252,0.25),transparent_35%),radial-gradient(circle_at_75%_35%,rgba(186,230,253,0.2),transparent_40%),radial-gradient(circle_at_50%_80%,rgba(153,246,228,0.16),transparent_40%),linear-gradient(140deg,#0c3f61_0%,#0a4d6d_45%,#0f5b63_100%)]"></div> */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(125,211,252,0.25),transparent_35%),radial-gradient(circle_at_75%_35%,rgba(186,230,253,0.2),transparent_40%),radial-gradient(circle_at_50%_80%,rgba(153,246,228,0.16),transparent_40%),linear-gradient(140deg,#9c8a74_0%,#ae936b_45%,#e7c4a5_100%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(255,255,255,0.2),transparent_35%),linear-gradient(140deg,#5f9ea0_0%,#6fb1b7_45%,#a8dadc_100%)]"></div>
         <div className="absolute inset-0 opacity-25 [background-image:radial-gradient(rgba(255,255,255,0.24)_1px,transparent_1px)] [background-size:22px_22px]"></div>
         <div className="absolute -top-10 right-[-8%] h-80 w-80 rounded-full bg-sky-200/20 blur-3xl"></div>
         <div className="absolute top-[28%] right-[16%] h-72 w-72 rounded-full bg-indigo-200/20 blur-2xl"></div>
@@ -305,7 +305,7 @@ function Landing() {
       </section>
 
       {/* Bottom Sky CTA Section */}
-      <section className="bg-[#f5f2ed] px-4 pb-16 pt-8">
+      <section className="bg-[#f5f2ed] px-4 pb-16 pt-28">
         <div
           className="relative max-w-6xl mx-auto rounded-[2rem] overflow-hidden min-h-[300px] md:min-h-[500px] shadow-[0_24px_60px_rgba(10,77,109,0.2)]"
           style={{

@@ -47,6 +47,10 @@ function Navbar() {
     ? `btn btn-ghost btn-sm font-semibold ${homeTextClass} ${homeHoverClass} border border-transparent transition-colors`
     : "btn btn-ghost btn-sm font-semibold hover:bg-base-300 transition-colors";
 
+  const navFeatureLinkClass = isHomePage
+    ? `inline-block relative no-underline text-base font-semibold ${homeTextClass} transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-current after:rounded-full after:transition-all after:duration-300 hover:after:w-full`
+    : "inline-block relative no-underline text-base font-semibold text-base-content transition-colors duration-300 hover:text-base-content after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-current after:rounded-full after:transition-all after:duration-300 hover:after:w-full";
+
   const mobileMenuClass = isHomePage
     ? isDarkTheme
       ? "dropdown-content z-[1] menu p-2 shadow-lg bg-[#0d4b6a]/90 text-slate-100 rounded-box w-52 border border-white/20 backdrop-blur-md animate-slideDown"
@@ -55,7 +59,7 @@ function Navbar() {
 
   return (
     <nav
-      className={`navbar px-4 sm:px-6 py-3 z-50 transition-all duration-300 animate-slideDown ${navClass}`}
+      className={`navbar border-none px-4 sm:px-6 py-6 z-50 transition-all duration-300 animate-slideDown ${navClass}`}
     >
       <div className="flex-1">
         <Link
@@ -70,59 +74,61 @@ function Navbar() {
         </Link>
       </div>
 
-      {/* Desktop Menu */}
-      <div className={`hidden md:flex gap-2 items-center ${isHomePage ? homeTextClass : ""}`}>
+      {/* Desktop Center Menu */}
+      <div className={`hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-12  ${isHomePage ? homeTextClass : ""}`}>
         <ThemeToggle />
+        {user && (
+          <>
+            <Link to="/resources" className={navFeatureLinkClass}>
+              Resources
+            </Link>
+            {user.role === "ROLE_STUDENT" && (
+              <>
+                <Link to="/booking" className={navFeatureLinkClass}>
+                  Booking
+                </Link>
+                <Link to="/chatbot" className={navFeatureLinkClass}>
+                  Chatbot
+                </Link>
+                <Link to="/forum" className={navFeatureLinkClass}>
+                  Forum
+                </Link>
+                <Link to="/my-appointments" className={navFeatureLinkClass}>
+                  My Appointments
+                </Link>
+              </>
+            )}
+            {user.role === "ROLE_COUNSELLOR" && (
+              <Link to="/counsellor" className={navFeatureLinkClass}>
+                Appointments
+              </Link>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Desktop Right Actions */}
+      <div className="hidden md:flex items-center gap-6 ml-auto">
         {!user ? (
           <>
-            <Link to="/login" className={navActionClass}>
+            <Link to="/login" className="{navActionClass} text-lg">
               Sign In
             </Link>
-            <Link to="/register" className="btn btn-primary btn-sm font-semibold">
+            <Link to="/register" className="btn btn-primary text-lg btn-sm font-semibold">
               Sign Up
             </Link>
           </>
         ) : (
-          <>
-            {/* <Link to="/dashboard" className={`${navActionClass} text-sm`}>
-              Dashboard
-            </Link> */}
-            <Link to="/resources" className={`${navActionClass} text-base`}>
-              Resources
-            </Link>
-          {user.role === "ROLE_STUDENT" && (
-              <>
-                <Link to="/booking" className={`${navActionClass} text-base`}>
-              Booking
-            </Link>
-            <Link to="/chatbot" className={`${navActionClass} text-base`}>
-              Chatbot
-            </Link>
-            <Link to="/forum" className={`${navActionClass} text-base`}>
-              Forum
-            </Link>
-
-            <Link to="/my-appointments" className={`${navActionClass} text-base`}>
-              My Appointments
-            </Link>
-              </>
-            )}
-            {user.role === "ROLE_COUNSELLOR" && (
-              <Link to="/counsellor" className={`${navActionClass} text-sm`}>
-                Appointments
-              </Link>
-            )}
-            <button
-              onClick={handleLogout}
-              className={`btn btn-sm font-bold px-3 hover:shadow-lg transition-all duration-300 ${
-                isHomePage
-                  ? "bg-rose-100 text-rose-800 border-0 hover:bg-white"
-                  : "btn-error"
-              }`}
-            >
-              Logout
-            </button>
-          </>
+          <button
+            onClick={handleLogout}
+            className={`btn btn-sm font-semibold px-6  text-xl hover:shadow-lg transition-all duration-300 ${
+              isHomePage
+                ? "bg-rose-100 text-black border-0 hover:bg-red-200"
+                : "btn-error"
+            }`}
+          >
+            Logout
+          </button>
         )}
       </div>
 

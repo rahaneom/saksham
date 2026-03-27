@@ -89,7 +89,7 @@ function Login() {
       </div>
 
       {/* Login Card */}
-      <div className="card w-full max-w-md bg-base-100/80 backdrop-blur-lg shadow-2xl border border-base-300">
+      <div className="card w-full max-w-md bg-white/95 backdrop-blur-lg shadow-2xl border border-base-300">
 
         <div className="card-body p-8">
           <h2 className="text-2xl font-bold text-center mb-6">
@@ -105,7 +105,7 @@ function Login() {
               </label>
               <input
                 type="email"
-                className={`input input-bordered w-full ${
+                className={`input px-2 input-bordered w-full  ${
                   errors.email ? "input-error" : ""
                 }`}
                 placeholder="your.email@example.com"
@@ -130,7 +130,7 @@ function Login() {
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  className={`input input-bordered w-full pr-14 ${
+                  className={`input input-bordered w-full pr-14  px-2 ${
                     errors.password ? "input-error" : ""
                   }`}
                   placeholder="••••••••"
