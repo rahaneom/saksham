@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import homeCircular from "../assets/continuum.svg";
+import heroSectionImage from "../assets/hero_section_image.svg";
 import skyBg from "../assets/sky.png";
 import emojiOne from "../assets/imgi_154_Frame_370079.svg";
 import emojiTwo from "../assets/imgi_157_Frame_370079__2_.svg";
@@ -121,7 +122,7 @@ function Landing() {
         <div className="absolute top-[28%] right-[16%] h-72 w-72 rounded-full bg-indigo-200/20 blur-2xl"></div>
         <div className="absolute -bottom-24 left-[42%] h-96 w-96 rounded-full bg-emerald-200/20 blur-3xl"></div>
 
-        <div className="relative z-10 w-full max-w-6xl mx-auto grid items-center gap-12 lg:grid-cols-[1fr_1.05fr]">
+        <div className="relative z-10 w-full max-w-6xl mx-auto grid items-center gap-8 lg:gap-10 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="max-w-4xl lg:max-w-none">
             <h1 className="text-white text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.03] mb-6 animate-slideDown">
               {user ? `Welcome, ${displayName}` : "Mental Wellness Platform"}
@@ -262,6 +263,18 @@ function Landing() {
                 <span>24/7 Available</span>
               </div>
             </div>
+          </div>
+
+          <div
+            className="relative z-10 hidden lg:flex justify-center items-center animate-slideUp"
+            style={{ animationDelay: "0.18s" }}
+          >
+            <img
+              src={heroSectionImage}
+              alt="Students discussing wellness support"
+              className="h-auto w-[92%] max-w-[430px] object-contain translate-y-2 drop-shadow-[0_14px_24px_rgba(22,56,74,0.18)]"
+              loading="eager"
+            />
           </div>
 
         </div>
