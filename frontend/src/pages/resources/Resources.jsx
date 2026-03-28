@@ -46,7 +46,7 @@ function Resources() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-base-100 via-base-100 to-base-200 py-8 px-4 sm:px-6 lg:px-8 animate-fadeIn">
+    <div className="min-h-screen  py-8 px-4 sm:px-6 lg:px-8 animate-fadeIn">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 animate-slideDown text-center">
@@ -94,7 +94,7 @@ function Resources() {
               <button
                 key={type.name}
                 onClick={() => setSelectedType(type.name)}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 ${
+                className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 bg-white ${
                   selectedType === type.name
                     ? `btn-primary shadow-lg scale-105`
                     : `btn btn-ghost hover:bg-base-300`
@@ -137,23 +137,23 @@ function Resources() {
         )}
 
         {/* Stats Footer */}
-        <div className="mt-12 pt-8 border-t border-base-300 animate-slideUp" style={{ animationDelay: "0.5s" }}>
+        <div className="mt-12 pt-8 border-t animate-slideUp" style={{ animationDelay: "0.5s" }}>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div>
-              <div className="text-2xl font-bold text-primary">{filteredResources.length}</div>
-              <div className="text-sm text-base-content/70">Resources Shown</div>
+              <div className="text-6xl font-bold text-primary">{filteredResources.length}</div>
+              <div className="text-xl font-semibold text-base-content/70">Resources</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-secondary">{list.filter(r => r.type === "VIDEO").length}</div>
-              <div className="text-sm text-base-content/70">Videos</div>
+              <div className="text-6xl font-bold text-secondary">{list.filter(r => r.type === "VIDEO").length}</div>
+              <div className="text-xl font-semibold text-base-content/70">Videos</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-accent">{list.filter(r => r.type === "PDF").length}</div>
-              <div className="text-sm text-base-content/70">Documents</div>
+              <div className="text-6xl font-bold text-accent">{list.filter(r => r.type === "PDF").length}</div>
+              <div className="text-xl font-semibold text-base-content/70">Documents</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-success">{list.filter(r => r.type === "AUDIO").length}</div>
-              <div className="text-sm text-base-content/70">Audio</div>
+              <div className="text-6xl font-bold text-success">{list.filter(r => r.type === "AUDIO").length}</div>
+              <div className="text-xl font-semibold text-base-content/70">Audio</div>
             </div>
           </div>
         </div>

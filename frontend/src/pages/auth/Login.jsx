@@ -101,11 +101,11 @@ function Login() {
             {/* Email */}
             <div>
               <label className="label">
-                <span className="label-text font-medium">Email</span>
+                <span className="label-text font-medium text-base mb-1">Email</span>
               </label>
               <input
                 type="email"
-                className={`input px-2 input-bordered w-full  ${
+                className={`input px-2 input-bordered w-full text-base ${
                   errors.email ? "input-error" : ""
                 }`}
                 placeholder="your.email@example.com"
@@ -124,13 +124,13 @@ function Login() {
             {/* Password */}
             <div>
               <label className="label">
-                <span className="label-text font-medium">Password</span>
+                <span className="label-text font-medium text-base mb-1">Password</span>
               </label>
 
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  className={`input input-bordered w-full pr-14  px-2 ${
+                  className={`input input-bordered w-full pr-14 text-base px-2 ${
                     errors.password ? "input-error" : ""
                   }`}
                   placeholder="••••••••"
@@ -173,7 +173,7 @@ function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className="btn btn-primary w-full mt-2 text-base font-semibold"
+              className="btn bg-slate-800 text-white w-full mt-2 text-base font-semibold"
             >
               {isLoading ? (
                 <>

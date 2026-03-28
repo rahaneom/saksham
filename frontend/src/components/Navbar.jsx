@@ -114,7 +114,7 @@ function Navbar() {
             <Link to="/login" className="{navActionClass} text-lg">
               Sign In
             </Link>
-            <Link to="/register" className="btn btn-primary text-lg btn-sm font-semibold">
+            <Link to="/register" className="btn bg-slate-800 text-white px-4  text-lg btn-sm font-semibold">
               Sign Up
             </Link>
           </>

@@ -15,9 +15,17 @@ import { resetBookingStatus } from "../../features/booking/bookingSlice";
 import { SlotCard, ConfirmModal } from "../../components/booking";
 import counsellorImage from "../../assets/counsellor image.png";
 
+const getSlotStartDate = (time) => {
+  const [hours = "0", minutes = "0"] = (time || "").split(":");
+  const slotStart = new Date();
+  slotStart.setHours(Number(hours), Number(minutes), 0, 0);
+  return slotStart;
+};
+
 function BookingPage() {
   const dispatch = useDispatch();
   const shownErrorRef = useRef(null);
+  const [now, setNow] = useState(new Date());
   const [counsellorInfo] = useState({
     name: "Dr. Counsellor",
     email: "counsellor@university.edu",
@@ -40,9 +48,15 @@ function BookingPage() {
   const status = useSelector(selectBookingStatus);
   const error = useSelector(selectBookingError);
 
-  const todaySlots = [...todaySlotsRaw].sort((a, b) => 
-    a.startTime.localeCompare(b.startTime)
-  );
+  const todaySlots = [...todaySlotsRaw]
+    .sort((a, b) => a.startTime.localeCompare(b.startTime))
+    .map((slot) => {
+      const isPastSlot = getSlotStartDate(slot.startTime) <= now;
+      return {
+        ...slot,
+        available: slot.available && !isPastSlot,
+      };
+    });
   const tomorrowSlots = [...tomorrowSlotsRaw].sort((a, b) => 
     a.startTime.localeCompare(b.startTime)
   );
@@ -63,6 +77,11 @@ function BookingPage() {
     // Clear any previous errors when component mounts
     dispatch(resetBookingStatus());
   }, [dispatch]);
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 30000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (error && error !== shownErrorRef.current) {

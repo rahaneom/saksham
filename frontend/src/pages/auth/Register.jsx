@@ -96,11 +96,11 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 bg-gradient-to-br from-base-100 to-base-200 animate-fadeIn">
+    <div className="min-h-screen bg-[#f5f2ed] flex flex-col items-center justify-center px-4 py-12 animate-fadeIn">
       <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8 animate-slideDown">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-2 text-slate-700 ">
             Create Account
           </h1>
           <p className="text-base-content/70">Join us to begin your wellness journey</p>
@@ -118,10 +118,10 @@ function Register() {
                 <span className="label-text font-semibold">Full Name</span>
               </label>
               <input
-                className={`input input-bordered transition-all duration-300 ${
+                className={`input input-bordered transition-all duration-300 px-2 ${
                   errors.name ? "input-error" : "focus:ring-2 focus:ring-primary"
                 }`}
-                placeholder="John Doe"
+                placeholder="Ravindra Patil"
                 value={form.name}
                 onChange={(e) => handleFieldChange("name", e.target.value)}
                 onBlur={(e) => validateField("name", e.target.value)}
@@ -135,10 +135,10 @@ function Register() {
                 <span className="label-text font-semibold">Email Address</span>
               </label>
               <input
-                className={`input input-bordered transition-all duration-300 ${
+                className={`input input-bordered transition-all duration-300 px-2 ${
                   errors.email ? "input-error" : "focus:ring-2 focus:ring-primary"
                 }`}
-                placeholder="john@example.com"
+                placeholder="ravi@example.com"
                 type="email"
                 value={form.email}
                 onChange={(e) => handleFieldChange("email", e.target.value)}
@@ -155,7 +155,7 @@ function Register() {
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  className={`input input-bordered w-full pr-12 transition-all duration-300 ${
+                  className={`input input-bordered w-full pr-12 transition-all duration-300 px-2 ${
                     errors.password ? "input-error" : "focus:ring-2 focus:ring-primary"
                   }`}
                   placeholder="••••••••"
@@ -191,7 +191,7 @@ function Register() {
               <div className="relative">
                 <input
                   type={showConfirmPassword ? "text" : "password"}
-                  className={`input input-bordered w-full pr-12 transition-all duration-300 ${
+                  className={`input input-bordered w-full pr-12 transition-all duration-300 px-2 ${
                     errors.confirmPassword ? "input-error" : "focus:ring-2 focus:ring-primary"
                   }`}
                   placeholder="••••••••"
@@ -225,7 +225,7 @@ function Register() {
                 <span className="label-text font-semibold">Phone Number</span>
               </label>
               <input
-                className={`input input-bordered transition-all duration-300 ${
+                className={`input px-2 input-bordered transition-all duration-300 ${
                   errors.phone ? "input-error" : "focus:ring-2 focus:ring-primary"
                 }`}
                 placeholder="+91 9876543210"
@@ -261,10 +261,10 @@ function Register() {
             {/* College Name */}
             <div className="form-control md:col-span-2 animate-slideUp" style={{ animationDelay: "0.4s" }}>
               <label className="label">
-                <span className="label-text font-semibold">College/University Name</span>
+                <span className="label-text font-semibold">College Name</span>
               </label>
               <input
-                className={`input input-bordered transition-all duration-300 ${
+                className={`input px-2 mx-2 input-bordered transition-all duration-300 ${
                   errors.collegeName ? "input-error" : "focus:ring-2 focus:ring-primary"
                 }`}
                 placeholder="XYZ College"
@@ -280,7 +280,7 @@ function Register() {
           <button
             type="submit"
             disabled={isLoading}
-            className="btn btn-primary w-full font-semibold text-lg mt-8 animate-slideUp transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn bg-slate-800 text-white w-50 font-semibold text-lg mt-8 animate-slideUp transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed "
             style={{ animationDelay: "0.45s" }}
           >
             {isLoading ? (
