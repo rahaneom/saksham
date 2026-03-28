@@ -1,14 +1,16 @@
 package com.saksham.service;
 
-import com.saksham.entity.Slot;
-import com.saksham.repository.SlotRepository;
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import com.saksham.entity.Slot;
+import com.saksham.repository.SlotRepository;
+
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +18,7 @@ public class SlotScheduler {
 
     private final SlotRepository slotRepository;
 
-    // 🔥 Runs ONCE when application starts (DEV support)
+    // Runs ONCE when application starts (DEV support)
     @PostConstruct
     public void init() {
         // Generate slots for today and tomorrow on startup
@@ -24,7 +26,7 @@ public class SlotScheduler {
         generateSlotsForDate(LocalDate.now().plusDays(1));
     }
 
-    // ⏰ Runs every day at 12:01 AM
+    // Runs every day at 12:01 AM
     @Scheduled(cron = "0 1 0 * * ?")
     public void generateTomorrowSlots() {
         generateSlotsForDate(LocalDate.now().plusDays(1));

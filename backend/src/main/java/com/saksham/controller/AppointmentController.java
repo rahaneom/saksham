@@ -1,20 +1,30 @@
 package com.saksham.controller;
 
-import com.saksham.dto.*;
-import com.saksham.entity.AppointmentStatus;
-import com.saksham.repository.UserRepository;
-import com.saksham.service.AppointmentService;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.Map;
+import com.saksham.dto.BookingResponse;
+import com.saksham.dto.CounsellorAppointmentResponse;
+import com.saksham.dto.SlotDisplayResponse;
+import com.saksham.dto.StudentAppointmentResponse;
+import com.saksham.entity.AppointmentStatus;
+import com.saksham.repository.UserRepository;
+import com.saksham.service.AppointmentService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/appointments")
@@ -24,7 +34,7 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
     private final UserRepository userRepository;
 
-    // 🔵 Book Appointment (JWT Based)
+    // Book Appointment (JWT Based)
     @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/book")
     public ResponseEntity<BookingResponse> bookAppointment(
@@ -39,7 +49,7 @@ public class AppointmentController {
         );
     }
 
-    // 🔵 Student Dashboard
+    // Student Dashboard
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/student")
     public ResponseEntity<List<StudentAppointmentResponse>> getStudentAppointments(
@@ -53,7 +63,7 @@ public class AppointmentController {
         );
     }
 
-    // 🔵 Counsellor Dashboard
+    // Counsellor Dashboard
     @PreAuthorize("hasRole('COUNSELLOR')")
     @GetMapping("/counsellor")
     public ResponseEntity<Page<CounsellorAppointmentResponse>> getAllAppointments(
@@ -73,7 +83,7 @@ public class AppointmentController {
         );
     }
 
-    // 🔵 Booking Slots (Today + Tomorrow)
+    // Booking Slots (Today + Tomorrow)
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/slots/booking")
     public ResponseEntity<Map<String, List<SlotDisplayResponse>>> getBookingSlots() {
@@ -82,7 +92,7 @@ public class AppointmentController {
         );
     }
 
-    // 🔵 Cancel Appointment
+    //  Cancel Appointment
     @PreAuthorize("hasRole('STUDENT')")
     @PutMapping("/cancel")
     public ResponseEntity<String> cancelAppointment(
@@ -97,7 +107,7 @@ public class AppointmentController {
         return ResponseEntity.ok("Appointment cancelled successfully");
     }
 
-    // 🔵 Mark Appointment Completed
+    // Mark Appointment Completed
     @PreAuthorize("hasRole('COUNSELLOR')")
     @PutMapping("/complete")
     public ResponseEntity<String> completeAppointment(
@@ -112,7 +122,7 @@ public class AppointmentController {
         return ResponseEntity.ok("Appointment marked as completed");
     }
 
-    // 🔒 Helper Method (avoid repetition)
+    // Helper Method (avoid repetition)
     private UUID getUserIdFromAuth(Authentication authentication) {
         String email = authentication.getName();
         return userRepository.findByEmail(email)
