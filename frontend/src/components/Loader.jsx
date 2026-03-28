@@ -1,7 +1,7 @@
 function Loader() {
   return (
     <div className="flex justify-center items-center min-h-[60vh]">
-      <span className="loading loading-bars loading-md"></span>
+      <span className="loading loading-bars loading-xl text-primary"></span>
     </div>
   );
 }

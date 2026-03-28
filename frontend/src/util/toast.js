@@ -34,7 +34,7 @@ export const bookingToast = {
 export const authToast = {
   loading: (message = "Processing...") => toast.loading(message),
 
-  validationError: (message = "Please fix the errors in the form") =>
+  validationError: (message = "Please Enter Valid Data") =>
     toast.error(message),
 
   loginSuccess: () => toast.success("Login successful! Redirecting..."),

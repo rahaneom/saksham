@@ -46,7 +46,7 @@ function AddResourceModal({ refresh }) {
     }
 
     if (!validate()) {
-      showToast.error("Fix form errors before submitting");
+      showToast.error("Please enter all required fields correctly");
       return;
     }
 
@@ -93,7 +93,7 @@ function AddResourceModal({ refresh }) {
   return (
     <>
       <button
-        className="btn btn-primary mb-4"
+        className="btn bg-slate-800 text-white py-2 px-4 mb-4"
         onClick={() => document.getElementById("add_modal").showModal()}
       >
         Add Resource
@@ -172,7 +172,7 @@ function AddResourceModal({ refresh }) {
 
           <button
             onClick={submit}
-            className={`btn btn-primary w-full ${loading ? "loading" : ""}`}
+            className={`btn bg-slate-800 text-white w-full ${loading ? "loading" : ""}`}
             disabled={loading}
           >
             {loading ? "Uploading..." : "Submit"}

@@ -96,7 +96,7 @@ function ResourceCard({ resource, isCounsellor, refresh }) {
   };
 
   return (
-    <div className="card bg-base-100 shadow-lg border border-base-300 hover:shadow-2xl hover:border-primary transition-all duration-300 overflow-hidden group">
+    <div className="card bg-base-100 shadow-lg hover:bg-slate-50 hover:shadow-2xl hover:border-primary transition-all duration-300 overflow-hidden group">
       {/* Preview Section */}
       <div className="relative overflow-hidden bg-base-200 p-4">
         {renderPreview()}
@@ -138,7 +138,7 @@ function ResourceCard({ resource, isCounsellor, refresh }) {
             href={resource.fileUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn btn-primary btn-sm flex-1 font-semibold hover:shadow-lg transition-all duration-300"
+            className="btn btn-primary btn-sm flex-1 font-semibold hover:shadow-lg bg-slate-800 text-white transition-all duration-300"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -151,7 +151,7 @@ function ResourceCard({ resource, isCounsellor, refresh }) {
               <button
                 onClick={() => setShowConfirm(true)}
                 disabled={isDeleting}
-                className="btn btn-error btn-sm btn-outline font-semibold hover:shadow-lg transition-all duration-300 disabled:opacity-50"
+                className="btn btn-error btn-sm btn-outline font-semibold hover:shadow-lg transition-all duration-300 disabled:opacity-50 px-4 hover:bg-red-400"
               >
                 {isDeleting ? (
                   <>
@@ -173,12 +173,13 @@ function ResourceCard({ resource, isCounsellor, refresh }) {
                 <div className="modal modal-open">
                   <div className="modal-box">
                     <h3 className="font-bold text-lg">Confirm deletion</h3>
-                    <p className="py-4">Are you sure you want to delete this resource?</p>
+                    <p className="py-4 text-base">Are you sure you want to delete this resource?</p>
                     <div className="modal-action">
-                      <button onClick={confirmDelete} className="btn btn-error">
-                        Yes, delete
+                      <button onClick={confirmDelete} className="btn bg-red-400 font-bold  px-4 text-base ">
+                        Delete
                       </button>
-                      <button onClick={() => setShowConfirm(false)} className="btn">
+                      <button onClick={() => setShowConfirm(false)} className="btn px-4 text-base
+                      ">
                         Cancel
                       </button>
                     </div>
