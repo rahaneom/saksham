@@ -32,7 +32,7 @@ function CounsellorDashboard() {
   const fetchAppointments = async () => {
     try {
       const res = await api.get(
-        `/api/appointments/counsellor?status=${statusFilter}&page=${page}&size=5`
+        `/api/appointments/counsellor?status=${statusFilter}&page=${page}&size=5`,
       );
 
       setAppointments(res.data.content || []);
@@ -48,20 +48,25 @@ function CounsellorDashboard() {
       setLoading(true);
       const token = localStorage.getItem("token");
       if (token) {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
+        const base64Url = token.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split("")
+            .map((c) => {
+              return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+            })
+            .join(""),
+        );
         const user = JSON.parse(jsonPayload);
-        
+
         setCounsellorInfo({
           name: user.name || "Dr. Counsellor",
           email: user.email || user.sub || "counsellor@university.edu",
           qualifications: "M.A. Psychology, B.A. Counselling",
           department: "Student Counselling & Guidance",
           phone: "+91-XXX-XXXX-XXXX",
-          photo: counsellorImage
+          photo: counsellorImage,
         });
       }
     } catch (err) {
@@ -71,7 +76,7 @@ function CounsellorDashboard() {
         qualifications: "M.A. Psychology, B.A. Counselling",
         department: "Student Counselling & Guidance",
         phone: "+91-XXX-XXXX-XXXX",
-        photo: counsellorImage
+        photo: counsellorImage,
       });
     } finally {
       setLoading(false);
@@ -82,7 +87,7 @@ function CounsellorDashboard() {
     const sorted = [...appointments];
     const effectiveSortOrder =
       statusFilter === "COMPLETED" && sortBy === "date" ? "desc" : sortOrder;
-    
+
     if (sortBy === "date") {
       sorted.sort((a, b) => {
         const dateA = new Date(`${a.slotDate} ${a.startTime}`);
@@ -95,7 +100,7 @@ function CounsellorDashboard() {
         return sortOrder === "asc" ? comparison : -comparison;
       });
     }
-    
+
     return sorted;
   };
 
@@ -123,19 +128,25 @@ function CounsellorDashboard() {
       title: "Mark as Completed",
       message: "Are you sure you want to mark this appointment as completed?",
       confirmText: "Mark Completed",
-      confirmButtonClass: "bg-emerald-600 hover:bg-emerald-700 text-white border-none",
+      confirmButtonClass:
+        "bg-emerald-600 hover:bg-emerald-700 text-white border-none",
       onConfirm: async () => {
         closeConfirmModal();
-        const toastId = bookingToast.loading("Marking appointment as completed...");
+        const toastId = bookingToast.loading(
+          "Marking appointment as completed...",
+        );
         try {
           await api.put(
-            `/api/appointments/complete?appointmentId=${appointmentId}`
+            `/api/appointments/complete?appointmentId=${appointmentId}`,
           );
           updateToast.success(toastId, "Appointment marked as completed!");
           fetchAppointments();
         } catch (err) {
           console.error("Failed to mark completed");
-          updateToast.error(toastId, err.response?.data?.message || "Failed to mark as completed");
+          updateToast.error(
+            toastId,
+            err.response?.data?.message || "Failed to mark as completed",
+          );
         }
       },
     });
@@ -149,11 +160,14 @@ function CounsellorDashboard() {
   return (
     <div className="min-h-screen bg-[#f5f2ed] text-base-content p-4 sm:p-6">
       <div className="max-w-6xl mx-auto space-y-6">
-
         {/* Header */}
         <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-base-content text-center flex items-center justify-center gap-2 sm:gap-3">
-          <svg className="w-8 h-8 sm:w-12 sm:h-12 text-indigo-600" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          <svg
+            className="w-8 h-8 sm:w-12 sm:h-12 text-indigo-600"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
           </svg>
           Counsellor Dashboard
         </h1>
@@ -169,12 +183,14 @@ function CounsellorDashboard() {
         ) : counsellorInfo ? (
           <div className="card counsellor-card bg-base-100 text-base-content rounded-2xl border border-base-300">
             <div className="card-body py-4 sm:py-6 px-4 sm:px-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-center mb-3 border-b-2 border-base-content/20 pb-2">Counsellor Profile</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-center mb-3 border-b-2 border-base-content/20 pb-2">
+                Counsellor Profile
+              </h2>
               <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
                 {/* Photo Section */}
                 <div className="flex-shrink-0 mx-auto md:mx-0">
-                  <img 
-                    src={counsellorInfo.photo} 
+                  <img
+                    src={counsellorInfo.photo}
                     alt={counsellorInfo.name}
                     className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-indigo-100 object-cover shadow-md"
                   />
@@ -182,29 +198,43 @@ function CounsellorDashboard() {
 
                 {/* Info Section */}
                 <div className="flex-1">
-                  <h2 className="text-2xl sm:text-3xl font-bold mb-1 text-center md:text-left">{counsellorInfo.name || "Counsellor"}</h2>
-                  
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-1 text-center md:text-left">
+                    {counsellorInfo.name || "Counsellor"}
+                  </h2>
+
                   <p className="text-base-content/70 text-sm sm:text-base font-semibold mb-3 text-center md:text-left">
                     {counsellorInfo.qualifications || "Professional Counsellor"}
                   </p>
 
                   <p className="text-base-content/70 text-sm flex items-start gap-2 mb-1 break-all">
-                    <svg className="w-4 h-4 text-indigo-600 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                    <svg
+                      className="w-4 h-4 text-indigo-600 mt-0.5"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
                     </svg>
                     {counsellorInfo.email || "email@example.com"}
                   </p>
 
                   <p className="text-base-content/70 text-sm flex items-start gap-2 mb-1 break-words">
-                    <svg className="w-4 h-4 text-indigo-600 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                    <svg
+                      className="w-4 h-4 text-indigo-600 mt-0.5"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
                     </svg>
                     {counsellorInfo.department || "Department"}
                   </p>
 
                   <p className="text-base-content/70 text-sm flex items-start gap-2 break-words">
-                    <svg className="w-4 h-4 text-indigo-600 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                    <svg
+                      className="w-4 h-4 text-indigo-600 mt-0.5"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
                     </svg>
                     {counsellorInfo.phone || "Phone"}
                   </p>
@@ -234,7 +264,9 @@ function CounsellorDashboard() {
             sortBy={sortBy}
             sortOrder={sortOrder}
             onSortByChange={setSortBy}
-            onSortOrderChange={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+            onSortOrderChange={() =>
+              setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+            }
           />
 
           {/* Appointment Cards */}
@@ -270,7 +302,6 @@ function CounsellorDashboard() {
             onClose={closeConfirmModal}
           />
         </div>
-
       </div>
     </div>
   );

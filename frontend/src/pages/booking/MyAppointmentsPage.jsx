@@ -169,7 +169,7 @@ function MyAppointmentsPage() {
 
               <div className="p-3 bg-blue-100 rounded-xl">
                 <Calendar className="w-6 h-6 text-blue-600" />
-              </div>
+              </div> 
             </div>
 
             {/* Completed */}
