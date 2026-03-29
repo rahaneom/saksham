@@ -6,10 +6,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Objects;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -41,10 +44,31 @@ public class AppointmentService {
         private final SlotRepository slotRepository;
         private final UserRepository userRepository;
 
-        // Book Appointment (TOMORROW ONLY + ONE PER DAY)
+        private List<LocalDate> getAllowedBookingDates() {
+
+                LocalDate today = LocalDate.now();
+                DayOfWeek todayDay = today.getDayOfWeek();
+
+                switch (todayDay) {
+                        case FRIDAY:
+                                return List.of(today, today.plusDays(3)); // Fri + Mon
+
+                        case SATURDAY:
+                                return List.of(today.plusDays(2)); // Monday
+
+                        case SUNDAY:
+                                return List.of(today.plusDays(1)); // Monday
+
+                        default:
+                                return List.of(today, today.plusDays(1)); // normal
+                }
+        }
+
+        // Book Appointment
         @Transactional
         public Appointment bookAppointment(UUID studentId, UUID slotId) {
 
+                // 1. Fetch student
                 User student = userRepository.findById(studentId)
                                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
@@ -52,51 +76,52 @@ public class AppointmentService {
                         throw new RuntimeException("Only students can book appointments");
                 }
 
-                // FIRST fetch slot
+                // 2. Fetch slot (WITH LOCK)
                 Slot slot = slotRepository.findByIdForUpdate(slotId)
                                 .orElseThrow(() -> new RuntimeException("Slot not found"));
 
-                // NOW you can use slot
                 LocalDate slotDate = slot.getSlotDate();
 
-                // Rule 1: No Sunday
+                // 3. NO SUNDAY
                 if (slotDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
                         throw new RuntimeException("Booking not allowed on Sundays");
                 }
 
-                // Rule 2: Only today/tomorrow
-                LocalDate today = LocalDate.now();
-                LocalDate tomorrow = today.plusDays(1);
+                // 4. ALLOWED DATES
+                List<LocalDate> allowedDates = getAllowedBookingDates();
 
-                if (!(slotDate.equals(today) || slotDate.equals(tomorrow))) {
-                        throw new RuntimeException("Booking allowed only for today and tomorrow");
+                if (!allowedDates.contains(slotDate)) {
+                        throw new RuntimeException("Booking allowed only for next working slots");
                 }
 
-                // ⏱ Time rule
-                LocalDateTime slotStartDateTime = LocalDateTime.of(slot.getSlotDate(), slot.getStartTime());
-                LocalDateTime bookingCutoff = slotStartDateTime.minusHours(1);
+                // 5. 1-hour cutoff
+                LocalDateTime slotStart = LocalDateTime.of(slotDate, slot.getStartTime());
 
-                if (LocalDateTime.now().isAfter(bookingCutoff)) {
-                        throw new RuntimeException("Booking not allowed within 1 hour");
+                if (LocalDateTime.now().isAfter(slotStart.minusHours(1))) {
+                        throw new RuntimeException("Booking not allowed within 1 hour of slot");
                 }
 
+                // 6. IMPORTANT: ONE BOOKING PER DAY PER STUDENT
                 boolean alreadyBooked = appointmentRepository
                                 .existsByStudent_IdAndSlot_SlotDateAndStatus(
                                                 studentId,
-                                                slot.getSlotDate(),
+                                                slotDate,
                                                 AppointmentStatus.BOOKED);
 
                 if (alreadyBooked) {
-                        throw new RuntimeException("You already have an appointment for this day");
+                        throw new RuntimeException("You already have a booking for this day");
                 }
 
+                // 7. SLOT MUST BE FREE
                 if (!slot.isAvailable()) {
                         throw new RuntimeException("Slot already booked");
                 }
 
+                // 8. Mark slot unavailable
                 slot.setAvailable(false);
                 slotRepository.save(slot);
 
+                // 9. Create appointment
                 Appointment appointment = Appointment.builder()
                                 .student(student)
                                 .slot(slot)
@@ -122,8 +147,20 @@ public class AppointmentService {
 
         // Student Dashboard
         public List<StudentAppointmentResponse> getAppointmentsForStudent(UUID studentId) {
+
                 return appointmentRepository.findByStudent_Id(studentId)
                                 .stream()
+                                .sorted((a, b) -> {
+
+                                        int dateCompare = b.getSlot().getSlotDate()
+                                                        .compareTo(a.getSlot().getSlotDate());
+
+                                        if (dateCompare != 0)
+                                                return dateCompare;
+
+                                        return b.getSlot().getStartTime()
+                                                        .compareTo(a.getSlot().getStartTime());
+                                })
                                 .map(a -> new StudentAppointmentResponse(
                                                 a.getId(),
                                                 a.getSlot().getSlotDate(),
@@ -146,108 +183,69 @@ public class AppointmentService {
                         throw new RuntimeException("Only counsellor can view appointments");
                 }
 
-                List<Appointment> appointments;
+                Page<Appointment> appointmentPage;
 
                 if (status != null) {
-                        // BOOKED OR COMPLETED explicitly
-                        appointments = appointmentRepository.findByStatus(status);
+                        appointmentPage = appointmentRepository.findByStatusIn(
+                                        List.of(status),
+                                        pageable);
                 } else {
-                        // Default → hide CANCELLED
-                        appointments = appointmentRepository.findByStatusIn(
-                                        List.of(
-                                                        AppointmentStatus.BOOKED,
-                                                        AppointmentStatus.COMPLETED));
+                        appointmentPage = appointmentRepository.findByStatusIn(
+                                        List.of(AppointmentStatus.BOOKED, AppointmentStatus.COMPLETED),
+                                        pageable);
                 }
 
-                // Ensure pagination starts from latest appointments first (newest date/time).
-                appointments.sort((a, b) -> {
-                        int dateCompare = b.getSlot().getSlotDate().compareTo(a.getSlot().getSlotDate());
-                        if (dateCompare != 0) {
-                                return dateCompare;
-                        }
-                        return b.getSlot().getStartTime().compareTo(a.getSlot().getStartTime());
-                });
-
-                List<CounsellorAppointmentResponse> content = appointments.stream()
-                                .map(a -> new CounsellorAppointmentResponse(
-                                                a.getId(),
-                                                a.getStudent().getName(),
-                                                a.getStudent().getAcademicYear(),
-                                                a.getStudent().getPhone(),
-                                                a.getSlot().getSlotDate(),
-                                                a.getSlot().getStartTime(),
-                                                a.getSlot().getEndTime(),
-                                                a.getStatus().toString()))
-                                .toList();
-
-                int start = (int) pageable.getOffset();
-                int end = Math.min((start + pageable.getPageSize()), content.size());
-
-                List<CounsellorAppointmentResponse> pageContent = content.subList(start, end);
-
-                return new PageImpl<>(pageContent, pageable, content.size());
-        }
-
-        // Tomorrow Available Slots
-        public List<SlotResponse> getTomorrowAvailableSlots() {
-                return slotRepository
-                                .findByIsAvailableTrueAndSlotDate(LocalDate.now().plusDays(1))
-                                .stream()
-                                .map(slot -> new SlotResponse(
-                                                slot.getId(),
-                                                slot.getSlotDate(),
-                                                slot.getStartTime(),
-                                                slot.getEndTime()))
-                                .toList();
-        }
-
-        // All Tomorrow Slots (UI)
-        public List<SlotDisplayResponse> getAllTomorrowSlotsForUI() {
-                return slotRepository
-                                .findBySlotDate(LocalDate.now().plusDays(1))
-                                .stream()
-                                .map(slot -> new SlotDisplayResponse(
-                                                slot.getId(),
-                                                slot.getSlotDate(),
-                                                slot.getStartTime(),
-                                                slot.getEndTime(),
-                                                slot.isAvailable()))
-                                .toList();
+                return appointmentPage.map(a -> new CounsellorAppointmentResponse(
+                                a.getId(),
+                                a.getStudent().getName(),
+                                a.getStudent().getAcademicYear(),
+                                a.getStudent().getPhone(),
+                                a.getSlot().getSlotDate(),
+                                a.getSlot().getStartTime(),
+                                a.getSlot().getEndTime(),
+                                a.getStatus().toString()));
         }
 
         // Cancel Appointment
         @Transactional
         public void cancelAppointment(UUID appointmentId, UUID studentId) {
 
+                // 1. Validate student
                 User student = userRepository.findById(studentId)
                                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-                // ROLE CHECK
                 if (student.getRole() != Role.ROLE_STUDENT) {
                         throw new RuntimeException("Only students can cancel appointments");
                 }
 
+                // 2. Fetch appointment
                 Appointment appointment = appointmentRepository.findById(appointmentId)
                                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
+                // 3. Ownership check
                 if (!appointment.getStudent().getId().equals(studentId)) {
                         throw new RuntimeException("Unauthorized cancellation");
                 }
 
+                // 4. Status checks
                 if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
                         throw new RuntimeException("Completed appointment cannot be cancelled");
                 }
 
                 if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
-                        throw new RuntimeException("Appointment already cancelled");
+                        return; // idempotent (safe repeat call)
                 }
 
+                // 5. Cancel appointment
                 appointment.setStatus(AppointmentStatus.CANCELLED);
 
+                // 6. Free slot (only if needed)
                 Slot slot = appointment.getSlot();
-                slot.setAvailable(true);
+                if (!slot.isAvailable()) {
+                        slot.setAvailable(true);
+                        slotRepository.save(slot);
+                }
 
-                slotRepository.save(slot);
                 appointmentRepository.save(appointment);
         }
 
@@ -255,61 +253,93 @@ public class AppointmentService {
         @Transactional
         public void markAppointmentCompleted(UUID appointmentId, UUID counsellorId) {
 
+                // 1. Validate counsellor
                 User counsellor = userRepository.findById(counsellorId)
                                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-                // ROLE CHECK
                 if (counsellor.getRole() != Role.ROLE_COUNSELLOR) {
                         throw new RuntimeException("Only counsellor can complete appointment");
                 }
 
+                // 2. Fetch appointment
                 Appointment appointment = appointmentRepository.findById(appointmentId)
                                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
+                // 3. Status check
                 if (appointment.getStatus() != AppointmentStatus.BOOKED) {
                         throw new RuntimeException("Only booked appointments can be completed");
                 }
 
+                // 4. ⏱ Time validation (VERY IMPORTANT)
+                LocalDateTime slotEnd = LocalDateTime.of(
+                                appointment.getSlot().getSlotDate(),
+                                appointment.getSlot().getEndTime());
+
+                if (LocalDateTime.now().isBefore(slotEnd)) {
+                        throw new RuntimeException("Cannot complete appointment before it ends");
+                }
+
+                // 5. Mark completed
                 appointment.setStatus(AppointmentStatus.COMPLETED);
+
                 appointmentRepository.save(appointment);
         }
 
         public Map<String, List<SlotDisplayResponse>> getBookingSlotsForStudent() {
 
-                LocalDate today = LocalDate.now();
-                LocalDate tomorrow = today.plusDays(1);
                 LocalDateTime now = LocalDateTime.now();
 
-                List<SlotDisplayResponse> todaySlots = slotRepository.findBySlotDate(today)
-                                .stream()
-                                .map(slot -> {
-                                        LocalDateTime slotStart = LocalDateTime.of(today, slot.getStartTime());
+                Map<String, List<SlotDisplayResponse>> response = new LinkedHashMap<>();
 
-                                        boolean bookable = slot.isAvailable() &&
-                                                        now.isBefore(slotStart.minusHours(1));
+                // ALWAYS FETCH NEXT 2 VALID WORKING DAYS
+                List<LocalDate> datesToCheck = List.of(
+                                LocalDate.now(),
+                                LocalDate.now().plusDays(1),
+                                LocalDate.now().plusDays(2),
+                                LocalDate.now().plusDays(3));
 
-                                        return new SlotDisplayResponse(
-                                                        slot.getId(),
-                                                        slot.getSlotDate(),
-                                                        slot.getStartTime(),
-                                                        slot.getEndTime(),
-                                                        bookable);
-                                })
-                                .toList();
+                for (LocalDate date : datesToCheck) {
 
-                List<SlotDisplayResponse> tomorrowSlots = slotRepository.findBySlotDate(tomorrow)
-                                .stream()
-                                .map(slot -> new SlotDisplayResponse(
-                                                slot.getId(),
-                                                slot.getSlotDate(),
-                                                slot.getStartTime(),
-                                                slot.getEndTime(),
-                                                slot.isAvailable()))
-                                .toList();
+                        // SKIP WEEKENDS
+                        if (date.getDayOfWeek() == DayOfWeek.SUNDAY ||
+                                        date.getDayOfWeek() == DayOfWeek.SATURDAY) {
+                                continue;
+                        }
 
-                Map<String, List<SlotDisplayResponse>> response = new HashMap<>();
-                response.put("today", todaySlots);
-                response.put("tomorrow", tomorrowSlots);
+                        List<SlotDisplayResponse> slots = slotRepository.findBySlotDate(date)
+                                        .stream()
+                                        .sorted(Comparator.comparing(Slot::getStartTime))
+                                        .map(slot -> {
+
+                                                LocalDateTime slotStart = LocalDateTime.of(date, slot.getStartTime());
+
+                                                // Skip past slots completely
+                                                if (now.isAfter(slotStart)) {
+                                                        return null;
+                                                }
+
+                                                boolean bookable = slot.isAvailable()
+                                                                && now.isBefore(slotStart.minusHours(1));
+
+                                                return new SlotDisplayResponse(
+                                                                slot.getId(),
+                                                                slot.getSlotDate(),
+                                                                slot.getStartTime(),
+                                                                slot.getEndTime(),
+                                                                bookable);
+                                        })
+                                        .filter(Objects::nonNull)
+                                        .toList();
+
+                        if (!slots.isEmpty()) {
+                                response.put(date.toString(), slots);
+                        }
+
+                        // ONLY TAKE FIRST 2 VALID DAYS
+                        if (response.size() == 2) {
+                                break;
+                        }
+                }
 
                 return response;
         }
@@ -325,7 +355,7 @@ public class AppointmentService {
 
                 System.out.println("Start Time from Calendly: " + startTime);
 
-                // Find slot (only for mapping)
+                // Find slot
                 Slot slot = slotRepository.findBySlotDate(slotDate)
                                 .stream()
                                 .filter(s -> s.getStartTime().getHour() == startTime.getHour()
@@ -335,10 +365,8 @@ public class AppointmentService {
 
                 System.out.println("Slot found: " + slot.getId());
 
-                boolean exists = appointmentRepository
-                                .existsBySlot_SlotDateAndSlot_StartTime(
-                                                start.toLocalDate(),
-                                                start.toLocalTime());
+                // Prevent duplicate booking
+                boolean exists = appointmentRepository.existsBySlot_Id(slot.getId());
 
                 if (exists) {
                         System.out.println("Already exists, skipping");
@@ -349,7 +377,7 @@ public class AppointmentService {
                 slot.setAvailable(false);
                 slotRepository.save(slot);
 
-                // Create appointment directly
+                // Create appointment
                 Appointment appointment = Appointment.builder()
                                 .student(student)
                                 .slot(slot)
@@ -366,6 +394,13 @@ public class AppointmentService {
 
                 for (Map<String, Object> event : events) {
 
+                        // Skip cancelled events
+                        String status = (String) event.get("status");
+                        if ("canceled".equalsIgnoreCase(status)) {
+                                System.out.println("Skipping cancelled event");
+                                continue;
+                        }
+
                         String startStr = (String) event.get("start_time");
                         String endStr = (String) event.get("end_time");
 
@@ -379,8 +414,10 @@ public class AppointmentService {
                         LocalDateTime end = Instant.parse(endStr)
                                         .atZone(ZoneId.of("Asia/Kolkata"))
                                         .toLocalDateTime();
-                        // TEMP: pick first student (we fix later)
-                        User student = userRepository.findAll().get(0);
+
+                        // TEMP fallback (until invitee API added)
+                        User student = userRepository.findAll().stream().findFirst()
+                                        .orElseThrow(() -> new RuntimeException("No users found"));
 
                         try {
                                 bookViaCalendly(student.getId(), start, end);

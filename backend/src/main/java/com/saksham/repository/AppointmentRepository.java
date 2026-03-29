@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, UUID> {
 
@@ -24,4 +26,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
     List<Appointment> findByStatusIn(List<AppointmentStatus> statuses);
 
     boolean existsBySlot_SlotDateAndSlot_StartTime(LocalDate slotDate, LocalTime startTime);
+
+    boolean existsBySlot_Id(UUID slotId);
+
+    Page<Appointment> findByStatusIn(
+            List<AppointmentStatus> statuses,
+            Pageable pageable);
 }

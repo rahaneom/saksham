@@ -9,29 +9,23 @@ import {
   // selectTodaySlots,
   // selectTomorrowSlots,
   selectBookingStatus,
+  selectFetchStatus,
   selectBookingError,
 } from "../../features/booking/bookingSelectors";
 import { resetBookingStatus } from "../../features/booking/bookingSlice";
-import { SlotCard, ConfirmModal } from "../../components/booking";
+import { ConfirmModal } from "../../components/booking";
 import counsellorImage from "../../assets/counsellor image.png";
-
-// const getSlotStartDate = (time) => {
-//   const [hours = "0", minutes = "0"] = (time || "").split(":");
-//   const slotStart = new Date();
-//   slotStart.setHours(Number(hours), Number(minutes), 0, 0);
-//   return slotStart;
-// };
 
 function BookingPage() {
   const dispatch = useDispatch();
   const shownErrorRef = useRef(null);
-  // const [now, setNow] = useState(new Date());
+  const [now, setNow] = useState(new Date());
   const [counsellorInfo] = useState({
     name: "Dr. Counsellor",
     email: "counsellor@university.edu",
     qualifications: "M.A. Psychology, B.A. Counselling",
     department: "Student Counselling & Guidance",
-    phone: "+91-XXX-XXXX-XXXX",
+    phone: "+91-8993758780",
     photo: counsellorImage,
   });
   const [confirmConfig, setConfirmConfig] = useState({
@@ -43,42 +37,10 @@ function BookingPage() {
     onConfirm: null,
   });
 
-  // const todaySlotsRaw = useSelector(selectTodaySlots);
-  // const tomorrowSlotsRaw = useSelector(selectTomorrowSlots);
-  const status = useSelector(selectBookingStatus);
+  const fetchStatus = useSelector(selectFetchStatus);
+  const bookingStatus = useSelector(selectBookingStatus);
   const error = useSelector(selectBookingError);
-
-  // const todaySlots = [...todaySlotsRaw]
-  //   .sort((a, b) => a.startTime.localeCompare(b.startTime))
-  //   .map((slot) => {
-  //     const isPastSlot = getSlotStartDate(slot.startTime) <= now;
-  //     return {
-  //       ...slot,
-  //       available: slot.available && !isPastSlot,
-  //     };
-  //   });
-  // const tomorrowSlots = [...tomorrowSlotsRaw].sort((a, b) =>
-  //   a.startTime.localeCompare(b.startTime),
-  // );
-
-  // const getTodayDate = () => {
-  //   const today = new Date();
-  //   return today.toLocaleDateString("en-US", {
-  //     month: "short",
-  //     day: "numeric",
-  //     year: "numeric",
-  //   });
-  // };
-
-  // const getTomorrowDate = () => {
-  //   const tomorrow = new Date();
-  //   tomorrow.setDate(tomorrow.getDate() + 1);
-  //   return tomorrow.toLocaleDateString("en-US", {
-  //     month: "short",
-  //     day: "numeric",
-  //     year: "numeric",
-  //   });
-  // };
+  const bookingSlots = useSelector((state) => state.booking.slots) || {};
 
   useEffect(() => {
     dispatch(fetchBookingSlots());
@@ -86,10 +48,10 @@ function BookingPage() {
     dispatch(resetBookingStatus());
   }, [dispatch]);
 
-  // useEffect(() => {
-  //   const timer = setInterval(() => setNow(new Date()), 30000);
-  //   return () => clearInterval(timer);
-  // }, []);
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 30000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (error && error !== shownErrorRef.current) {
@@ -139,6 +101,28 @@ function BookingPage() {
     });
   };
 
+  const normalizedSlots = {};
+
+  if (bookingSlots.today?.length) {
+    const date = bookingSlots.today[0].slotDate;
+
+    const day = new Date(date + "T00:00:00").getDay(); // 0 = Sunday
+
+    if (day !== 0) {
+      normalizedSlots[date] = bookingSlots.today;
+    }
+  }
+
+  if (bookingSlots.tomorrow?.length) {
+    const date = bookingSlots.tomorrow[0].slotDate;
+
+    const day = new Date(date + "T00:00:00").getDay();
+
+    if (day !== 0) {
+      normalizedSlots[date] = bookingSlots.tomorrow;
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#f5f2ed] text-base-content p-4 sm:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
@@ -158,7 +142,6 @@ function BookingPage() {
             Choose a time slot that works best for you
           </p>
         </div>
-
         {/* Counsellor Info Card */}
         <div className="max-w-2xl mx-auto mb-4">
           <div className="border card counsellor-card bg-base-100 text-base-content rounded-2xl border-base-300">
@@ -274,7 +257,6 @@ function BookingPage() {
             </div>
           </div>
         </div>
-
         {/* Motivational Card */}
         <div className="max-w-2xl mx-auto mb-4">
           <div className="px-6 py-4 text-white shadow-xl card bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600">
@@ -302,19 +284,7 @@ function BookingPage() {
             </div>
           </div>
         </div>
-
-        {/* Loading */}
-        {status === "loading" && (
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <span className="text-indigo-600 loading loading-bars loading-lg"></span>
-              <p className="mt-4 text-base-content/70">
-                Loading available slots...
-              </p>
-            </div>
-          </div>
-        )}
-
+    
         <div className="max-w-4xl mx-auto mt-6">
           <div className="overflow-hidden border shadow-xl card bg-base-100 border-base-300 rounded-2xl">
             {/* Title */}
@@ -326,15 +296,72 @@ function BookingPage() {
                 Choose a slot that works best for you
               </p>
             </div>
+            {/* Slots Section */}
+            <div className="p-5">
+              {/* Loader ONLY for fetching */}
+              {fetchStatus === "loading" && (
+                <div className="flex justify-center py-20">
+                  <span className="loading loading-bars loading-xl text-primary"></span>
+                </div>
+              )}
 
-            {/* Calendly Embed */}
-            <div className="w-full h-[700px]">
-              <iframe
-                src="https://calendly.com/extraaworkk44/counselling-session"
-                width="100%"
-                height="100%"
-                frameBorder="0"
-              />
+              {/* Show slots ONLY after fetch */}
+              {fetchStatus === "success" && (
+                <>
+                  {Object.keys(normalizedSlots).length === 0 ? (
+                    <p className="text-center text-base-content/60">
+                      No slots available
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                      {Object.entries(normalizedSlots)
+                        .sort(([d1], [d2]) => new Date(d1) - new Date(d2))
+                        .map(([date, slots]) => (
+                          <div
+                            key={date}
+                            className="p-5 border shadow-md rounded-xl"
+                          >
+                            <h3 className="mb-4 text-lg font-semibold text-indigo-600">
+                              {new Date(date + "T00:00:00").toLocaleDateString(
+                                "en-IN",
+                                {
+                                  weekday: "long",
+                                  day: "numeric",
+                                  month: "long",
+                                },
+                              )}
+                            </h3>
+
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                              {slots
+                                .filter((slot) => {
+                                  const slotTime = new Date(
+                                    date + "T" + slot.startTime,
+                                  );
+                                  return slotTime > new Date();
+                                })
+                                .map((slot) => (
+                                  <button
+                                    key={slot.slotId}
+                                    disabled={!slot.available}
+                                    onClick={() => handleBook(slot.slotId)}
+                                    className={`px-3 py-2 rounded-lg text-sm font-medium
+                        ${
+                          slot.available
+                            ? "bg-indigo-100 hover:bg-indigo-600 hover:text-white text-indigo-700"
+                            : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        }`}
+                                  >
+                                    {slot.startTime.slice(0, 5)}
+                                  </button>
+                                ))}
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -352,5 +379,4 @@ function BookingPage() {
     </div>
   );
 }
-
 export default BookingPage;

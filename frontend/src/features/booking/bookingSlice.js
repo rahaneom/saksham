@@ -8,9 +8,9 @@ import {
 } from "./bookingThunks";
 
 const initialState = {
-  todaySlots: [],
-  tomorrowSlots: [],
+  slots: {},
   myAppointments: [],
+  fetchStatus: BOOKING_STATUS.IDLE,
   bookingStatus: BOOKING_STATUS.IDLE,
   error: null,
 };
@@ -27,21 +27,20 @@ const bookingSlice = createSlice({
   extraReducers: (builder) => {
     builder
 
-      // 🔵 Fetch Slots
+      // FETCH SLOTS (FIXED)
       .addCase(fetchBookingSlots.pending, (state) => {
-        state.bookingStatus = BOOKING_STATUS.LOADING;
+        state.fetchStatus = BOOKING_STATUS.LOADING;
       })
       .addCase(fetchBookingSlots.fulfilled, (state, action) => {
-        state.todaySlots = action.payload.today;
-        state.tomorrowSlots = action.payload.tomorrow;
-        state.bookingStatus = BOOKING_STATUS.SUCCESS;
+        state.slots = action.payload;
+        state.fetchStatus = BOOKING_STATUS.SUCCESS;
       })
       .addCase(fetchBookingSlots.rejected, (state, action) => {
-        state.bookingStatus = BOOKING_STATUS.ERROR;
+        state.fetchStatus = BOOKING_STATUS.ERROR;
         state.error = action.payload;
       })
 
-      // 🔵 Book Slot
+      // BOOK SLOT (CORRECT)
       .addCase(bookSlot.pending, (state) => {
         state.bookingStatus = BOOKING_STATUS.LOADING;
       })
@@ -53,15 +52,15 @@ const bookingSlice = createSlice({
         state.error = action.payload;
       })
 
-      // 🔵 My Appointments
+      // MY APPOINTMENTS
       .addCase(fetchMyAppointments.fulfilled, (state, action) => {
         state.myAppointments = action.payload;
       })
 
-      // 🔵 Cancel Appointment
+      // CANCEL
       .addCase(cancelAppointment.fulfilled, (state, action) => {
         state.myAppointments = state.myAppointments.filter(
-          (a) => a.id !== action.payload
+          (a) => a.id !== action.payload,
         );
       });
   },
