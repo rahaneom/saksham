@@ -10,6 +10,7 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 import Resources from "./pages/resources/Resources";
 import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
 import ChatbotPage from "./pages/chatbot/ChatbotPage";
 import PrivateRoute from "./components/PrivateRoute";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
@@ -57,6 +58,15 @@ function App() {
           element={
             <PrivateRoute>
               <Resources />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
             </PrivateRoute>
           }
         />

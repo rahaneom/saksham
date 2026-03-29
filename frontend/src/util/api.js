@@ -1,8 +1,9 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://saksham-backend-fcd5.onrender.com/api",
+  baseURL: "https://saksham-backend-fcd5.onrender.com",
 });
+
 
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem("token");

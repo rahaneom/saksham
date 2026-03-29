@@ -42,13 +42,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
-        String email = jwtUtil.extractEmail(token);
-        String role = jwtUtil.extractRole(token);
+        System.out.println("[JwtAuthFilter] token received (first20): " + token.substring(0, Math.min(20, token.length())));
+        String email = null;
+        String role = null;
+        try {
+            email = jwtUtil.extractEmail(token);
+            role = jwtUtil.extractRole(token);
+            System.out.println("[JwtAuthFilter] extracted user=" + email + " role=" + role);
+        } catch (Exception ex) {
+            System.err.println("[JwtAuthFilter] invalid token: " + ex.getMessage());
+        }
 
         if (email != null &&
             SecurityContextHolder.getContext().getAuthentication() == null) {
 
             if (!jwtUtil.validateToken(token, email)) {
+                System.out.println("[JwtAuthFilter] token validation failed for " + email);
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -70,9 +79,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    // ✅ Skip JWT filter for auth APIs
+    // ✅ Skip JWT filter for auth APIs except update
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getRequestURI().startsWith("/api/auth/");
+        String uri = request.getRequestURI();
+
+        // allow unauthenticated register/login/forgot/reset
+        if (uri.equals("/api/auth/register") || uri.equals("/api/auth/login") || uri.equals("/api/auth/forgot-password") || uri.equals("/api/auth/reset-password")) {
+            return true;
+        }
+
+        // allow unauthenticated GET requests to resources
+        if (uri.startsWith("/api/resources/") && "GET".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
+
+        // require auth for update/profile endpoints and all appointment endpoints
+        if (uri.equals("/api/auth/update") || uri.equals("/api/users/me") || uri.startsWith("/api/appointments/")) {
+            return false;
+        }
+
+        // protect everything else as usual
+        return uri.startsWith("/api/auth/") ? false : false;
     }
 }

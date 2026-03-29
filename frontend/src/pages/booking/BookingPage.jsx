@@ -6,8 +6,6 @@ import {
   bookSlot,
 } from "../../features/booking/bookingThunks";
 import {
-  // selectTodaySlots,
-  // selectTomorrowSlots,
   selectBookingStatus,
   selectFetchStatus,
   selectBookingError,

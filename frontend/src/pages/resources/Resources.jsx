@@ -18,7 +18,7 @@ function Resources() {
   const fetchData = useCallback(async () => {
     dispatch(setLoading(true));
     try {
-      const res = await API.get("/resources");
+      const res = await API.get("/api/resources");
       dispatch(setResources(res.data));
     } catch (err) {
       console.error(err);

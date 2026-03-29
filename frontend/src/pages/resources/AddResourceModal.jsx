@@ -60,7 +60,7 @@ function AddResourceModal({ refresh }) {
         url = await uploadResourceFile(file, form.type.toLowerCase());
       }
 
-      await API.post("/resources", {
+      await API.post("/api/resources", {
         ...form,
         fileUrl: url,
       });

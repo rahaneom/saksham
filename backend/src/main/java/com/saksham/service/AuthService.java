@@ -166,4 +166,22 @@ public class AuthService {
 
         return "Password updated successfully";
     }
+
+    public UserProfileResponse getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return UserProfileResponse.builder()
+                .name(user.getName())
+                .alias(user.getAlias())
+                .academicYear(user.getAcademicYear())
+                .collegeName(user.getCollegeName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .role(user.getRole().name())
+                .createdAt(user.getCreatedAt())
+                .build();
+    }
 }
