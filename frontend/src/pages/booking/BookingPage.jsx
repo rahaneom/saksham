@@ -120,17 +120,17 @@ function BookingPage() {
         <div className="max-w-3xl mx-auto mb-6">
           <div className="overflow-hidden bg-white border border-gray-200 shadow-lg rounded-2xl">
             {/* Header */}
-            <div className="px-6 py-4 text-white border-b bg-gradient-to-r from-indigo-600 to-violet-600">
-              <h2 className="text-lg font-semibold tracking-wide">
-                Your Counsellor
+            <div className="px-6 py-4 text-white border-b bg-gradient-to-r from-sky-600 to-sky-800">
+              <h2 className="text-xl font-semibold tracking-wide text-center">
+                Meet Your Counsellor
               </h2>
-              <p className="text-sm text-white/80">
+              <p className="text-base text-center text-white/80">
                 Professional support for your academic & personal growth
               </p>
             </div>
 
             {/* Body */}
-            <div className="flex flex-col items-center gap-6 p-6 sm:flex-row sm:items-start">
+            <div className="flex flex-col items-center gap-8 p-6 sm:flex-row sm:items-start">
               {/* Profile */}
               <div className="flex flex-col items-center text-center sm:text-left">
                 <img
@@ -138,7 +138,7 @@ function BookingPage() {
                   alt={counsellorInfo.name}
                   className="object-cover w-24 h-24 border-4 border-indigo-100 rounded-full shadow-md"
                 />
-                <h3 className="mt-3 text-lg font-semibold text-gray-800">
+                <h3 className="mt-3 text-xl font-semibold text-gray-800">
                   {counsellorInfo.name}
                 </h3>
                 <p className="text-sm text-gray-500">
@@ -147,7 +147,7 @@ function BookingPage() {
               </div>
 
               {/* Details */}
-              <div className="grid flex-1 grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+              <div className="grid flex-1 grid-cols-1 gap-4 text-base sm:grid-cols-2">
                 <div>
                   <p className="text-gray-500">Department</p>
                   <p className="font-medium text-gray-800">
@@ -177,14 +177,14 @@ function BookingPage() {
             </div>
           </div>
         </div>
-        <div className="max-w-4xl mx-auto mt-6">
-          <div className="overflow-hidden border shadow-xl card bg-base-100 border-base-300 rounded-2xl">
+        <div className="max-w-6xl mx-auto mt-6">
+          <div className="px-4 py-6 overflow-hidden border shadow-xl card bg-base-100 border-base-300 rounded-2xl">
             {/* Title */}
             <div className="p-4 text-center border-b border-base-300">
-              <h2 className="text-xl font-bold text-base-content">
+              <h2 className="text-2xl font-bold text-base-content">
                 Select Your Preferred Time
               </h2>
-              <p className="mt-1 text-sm text-base-content/70">
+              <p className="mt-1 text-base text-base-content/70">
                 Choose a slot that works best for you
               </p>
             </div>
@@ -211,9 +211,9 @@ function BookingPage() {
                         .map(([date, slots]) => (
                           <div
                             key={date}
-                            className="p-5 border shadow-md rounded-xl"
+                            className="px-5 py-6 border shadow-md rounded-xl"
                           >
-                            <h3 className="mb-4 text-lg font-semibold text-indigo-600">
+                            <h3 className="px-2 mb-4 text-lg font-semibold text-indigo-600">
                               {new Date(date + "T00:00:00").toLocaleDateString(
                                 "en-IN",
                                 {
@@ -247,13 +247,13 @@ function BookingPage() {
                               }
 
                               return (
-                                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                                   {filteredSlots.map((slot) => (
                                     <button
                                       key={slot.slotId}
                                       disabled={!slot.available}
                                       onClick={() => handleBook(slot.slotId)}
-                                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                                      className={`px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200
               ${
                 slot.available
                   ? "bg-indigo-100 hover:bg-indigo-600 hover:text-white text-indigo-700 cursor-pointer"
