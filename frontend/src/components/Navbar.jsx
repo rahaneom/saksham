@@ -113,9 +113,7 @@ function Navbar() {
                 <Link to="/forum" className={navFeatureLinkClass}>
                   Forum
                 </Link>
-                <Link to="/my-appointments" className={navFeatureLinkClass}>
-                  My Appointments
-                </Link>
+
               </>
             )}
             {user.role === "ROLE_COUNSELLOR" && (
