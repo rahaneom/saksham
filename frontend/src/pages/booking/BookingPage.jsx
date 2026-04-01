@@ -97,17 +97,18 @@ function BookingPage() {
 
   const normalizedSlots = {};
 
-  ["today", "tomorrow"].forEach((key) => {
-    const slotsArr = bookingSlots[key];
+  // Backend returns keys as ISO dates (e.g. 2026-04-02),
+  // so normalize using all entries instead of only today/tomorrow keys.
+  Object.entries(bookingSlots).forEach(([key, slotsArr]) => {
+    if (!slotsArr?.length) {
+      return;
+    }
 
-    if (slotsArr?.length) {
-      const date = slotsArr[0].slotDate;
+    const date = slotsArr[0].slotDate || key;
+    const day = new Date(date + "T00:00:00").getDay();
 
-      const day = new Date(date + "T00:00:00").getDay();
-
-      if (day !== 0) {
-        normalizedSlots[date] = slotsArr;
-      }
+    if (day !== 0) {
+      normalizedSlots[date] = slotsArr;
     }
   });
 

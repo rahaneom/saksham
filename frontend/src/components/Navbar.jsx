@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/auth/authSlice";
 import ThemeToggle from "./ThemeToggle";
 import ProfileCard from "./ProfileCard";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { getProfile } from "../services/authService";
 
@@ -14,6 +14,7 @@ function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isProfileCardOpen, setIsProfileCardOpen] = useState(false);
+  const profileCloseTimeoutRef = useRef(null);
   const [profile, setProfile] = useState(null);
   const [isDarkTheme, setIsDarkTheme] = useState(() =>
     document.documentElement.getAttribute("data-theme") === "dark",
@@ -40,6 +41,25 @@ function Navbar() {
     setIsUserDropdownOpen(false);
   };
 
+  const openProfileCard = () => {
+    if (profileCloseTimeoutRef.current) {
+      clearTimeout(profileCloseTimeoutRef.current);
+      profileCloseTimeoutRef.current = null;
+    }
+    setIsProfileCardOpen(true);
+  };
+
+  const closeProfileCardWithDelay = () => {
+    if (profileCloseTimeoutRef.current) {
+      clearTimeout(profileCloseTimeoutRef.current);
+    }
+
+    // Small delay lets pointer cross from avatar to card without flicker/hide.
+    profileCloseTimeoutRef.current = setTimeout(() => {
+      setIsProfileCardOpen(false);
+    }, 180);
+  };
+
   useEffect(() => {
     const root = document.documentElement;
     const updateThemeFlag = () => {
@@ -51,7 +71,12 @@ function Navbar() {
     const observer = new MutationObserver(updateThemeFlag);
     observer.observe(root, { attributes: true, attributeFilter: ["data-theme"] });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (profileCloseTimeoutRef.current) {
+        clearTimeout(profileCloseTimeoutRef.current);
+      }
+    };
   }, []);
 
   const homeTextClass = isDarkTheme ? "text-slate-100" : "text-slate-800";
@@ -139,8 +164,8 @@ function Navbar() {
         ) : (
           <div
             className="relative dropdown dropdown-end"
-            onMouseEnter={() => setIsProfileCardOpen(true)}
-            onMouseLeave={() => setIsProfileCardOpen(false)}
+            onMouseEnter={openProfileCard}
+            onMouseLeave={closeProfileCardWithDelay}
           >
             <button
               tabIndex={0}
@@ -154,25 +179,27 @@ function Navbar() {
               {profile?.name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || "U"}
             </button>
             {isProfileCardOpen && (
-              <ProfileCard
-                profile={profile}
-                user={user}
-                onProfile={() => {
-                  setIsProfileCardOpen(false);
-                  setIsUserDropdownOpen(false);
-                  window.location.href = "/profile";
-                }}
-                onAppointments={() => {
-                  setIsProfileCardOpen(false);
-                  setIsUserDropdownOpen(false);
-                  window.location.href = user.role === "ROLE_COUNSELLOR" ? "/counsellor" : "/my-appointments";
-                }}
-                onLogout={() => {
-                  setIsProfileCardOpen(false);
-                  setIsUserDropdownOpen(false);
-                  handleLogout();
-                }}
-              />
+              <div className="pt-2" onMouseEnter={openProfileCard} onMouseLeave={closeProfileCardWithDelay}>
+                <ProfileCard
+                  profile={profile}
+                  user={user}
+                  onProfile={() => {
+                    setIsProfileCardOpen(false);
+                    setIsUserDropdownOpen(false);
+                    window.location.href = "/profile";
+                  }}
+                  onAppointments={() => {
+                    setIsProfileCardOpen(false);
+                    setIsUserDropdownOpen(false);
+                    window.location.href = user.role === "ROLE_COUNSELLOR" ? "/counsellor" : "/my-appointments";
+                  }}
+                  onLogout={() => {
+                    setIsProfileCardOpen(false);
+                    setIsUserDropdownOpen(false);
+                    handleLogout();
+                  }}
+                />
+              </div>
             )}
             {isUserDropdownOpen && (
               <ul
@@ -248,84 +275,39 @@ function Navbar() {
         {user && profile && (
           <div
             className="relative"
-            onMouseEnter={() => setIsProfileCardOpen(true)}
-            onMouseLeave={() => setIsProfileCardOpen(false)}
+            onMouseEnter={openProfileCard}
+            onMouseLeave={closeProfileCardWithDelay}
           >
             <button
               tabIndex={0}
               className="w-10 h-10 rounded-full bg-primary text-white font-extrabold text-sm flex items-center justify-center border-4 border-primary/30 hover:shadow-md transition-all"
-              onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+              onClick={() => setIsProfileCardOpen((prev) => !prev)}
             >
               {profile.name?.[0]?.toUpperCase() || "U"}
             </button>
             {isProfileCardOpen && (
-              <div className="absolute right-0 top-full mt-2">
-                <ProfileCard profile={profile} user={user} />
+              <div className="absolute right-0 top-full pt-2" onMouseEnter={openProfileCard} onMouseLeave={closeProfileCardWithDelay}>
+                <ProfileCard
+                  profile={profile}
+                  user={user}
+                  onProfile={() => {
+                    setIsProfileCardOpen(false);
+                    setIsUserDropdownOpen(false);
+                    window.location.href = "/profile";
+                  }}
+                  onAppointments={() => {
+                    setIsProfileCardOpen(false);
+                    setIsUserDropdownOpen(false);
+                    window.location.href =
+                      user.role === "ROLE_COUNSELLOR" ? "/counsellor" : "/my-appointments";
+                  }}
+                  onLogout={() => {
+                    setIsProfileCardOpen(false);
+                    setIsUserDropdownOpen(false);
+                    handleLogout();
+                  }}
+                />
               </div>
-            )}
-            {isUserDropdownOpen && (
-              <ul
-                tabIndex={0}
-                className={`absolute right-0 top-full mt-2 z-[1] menu p-2 shadow-lg rounded-box w-48 border ${
-                  isHomePage
-                    ? isDarkTheme
-                      ? "bg-[#0d4b6a]/95 text-slate-100 border-white/20"
-                      : "bg-white/95 text-slate-800 border-slate-300/80"
-                    : "bg-base-100 border-base-300"
-                }`}
-              >
-                <li>
-                  <Link
-                    to="/profile"
-                    onClick={() => setIsUserDropdownOpen(false)}
-                    className="flex items-center gap-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    My Profile
-                  </Link>
-                </li>
-                {user.role === "ROLE_STUDENT" && (
-                  <li>
-                    <Link
-                      to="/my-appointments"
-                      onClick={() => setIsUserDropdownOpen(false)}
-                      className="flex items-center gap-2"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      My Appointments
-                    </Link>
-                  </li>
-                )}
-                {user.role === "ROLE_COUNSELLOR" && (
-                  <li>
-                    <Link
-                      to="/counsellor"
-                      onClick={() => setIsUserDropdownOpen(false)}
-                      className="flex items-center gap-2"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      Appointments
-                    </Link>
-                  </li>
-                )}
-                <li>
-                  <button
-                    onClick={handleLogout}
-                    className="text-error font-semibold flex items-center gap-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    Logout
-                  </button>
-                </li>
-              </ul>
             )}
           </div>
         )}

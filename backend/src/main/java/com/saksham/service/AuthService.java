@@ -96,8 +96,31 @@ public class AuthService {
         if(request.getAcademicYear()!=null && !request.getAcademicYear().isBlank()){
             user.setAcademicYear(request.getAcademicYear());
         }
-        if(request.getPassword()!=null && !request.getPassword().isBlank()){
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        // Backward compatibility: if old payload sends "password", treat it as new password.
+        String newPassword = request.getNewPassword();
+        if ((newPassword == null || newPassword.isBlank())
+                && request.getPassword() != null
+                && !request.getPassword().isBlank()) {
+            newPassword = request.getPassword();
+        }
+
+        if(newPassword != null && !newPassword.isBlank()){
+            String oldPassword = request.getOldPassword();
+
+            if (oldPassword == null || oldPassword.isBlank()) {
+                throw new RuntimeException("Old password is required to set a new password");
+            }
+
+            if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+                throw new RuntimeException("Old password is incorrect");
+            }
+
+            if (newPassword.length() < 6) {
+                throw new RuntimeException("New password must be at least 6 characters");
+            }
+
+            user.setPassword(passwordEncoder.encode(newPassword));
         }
         userRepository.save(user);
         return "User updated successfully!";

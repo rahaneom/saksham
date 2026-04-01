@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { loginSuccess } from "../../features/auth/authSlice";
 import { loginUser } from "../../services/authService";
 import { authToast, updateToast } from "../../util/toast";
-import { Hand } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 function Login() {
   const dispatch = useDispatch();
@@ -146,9 +146,11 @@ function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-2.5 text-sm text-primary font-medium hover:underline"
+                  className="absolute right-3 top-2.5 text-base-content/60 hover:text-base-content"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  title={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? "Hide" : "Show"}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
 

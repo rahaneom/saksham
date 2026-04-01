@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import API from "../../util/api";
+import API from "../../services/api";
 import { setResources, setLoading } from "../../features/resource/resourceSlice";
 import Loader from "../../components/Loader";
 import { showToast } from "../../util/toast";

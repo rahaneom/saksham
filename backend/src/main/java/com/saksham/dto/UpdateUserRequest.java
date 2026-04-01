@@ -11,6 +11,8 @@ public class UpdateUserRequest {
     private String phone;
     private String academicYear;
     private String password;
+    private String oldPassword;
+    private String newPassword;
 }
 
 

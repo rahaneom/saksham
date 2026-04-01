@@ -114,7 +114,7 @@ function Landing() {
   return (
     <div className="min-h-screen bg-base-100 animate-fadeIn">
       {/* Hero Section */}
-      <section className="relative min-h-[106vh] flex items-center overflow-hidden px-4 py-32">
+      <section id="greeting" className="relative min-h-[106vh] flex items-center overflow-hidden px-4 py-32">
         {/* <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(125,211,252,0.25),transparent_35%),radial-gradient(circle_at_75%_35%,rgba(186,230,253,0.2),transparent_40%),radial-gradient(circle_at_50%_80%,rgba(153,246,228,0.16),transparent_40%),linear-gradient(140deg,#0c3f61_0%,#0a4d6d_45%,#0f5b63_100%)]"></div> */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(255,255,255,0.2),transparent_35%),linear-gradient(140deg,#5f9ea0_0%,#6fb1b7_45%,#a8dadc_100%)]"></div>
         <div className="absolute inset-0 opacity-25 [background-image:radial-gradient(rgba(255,255,255,0.24)_1px,transparent_1px)] [background-size:22px_22px]"></div>
@@ -264,15 +264,14 @@ function Landing() {
               </div>
             </div>
           </div>
-
           <div
-            className="relative z-10 hidden lg:flex justify-center items-center animate-slideUp"
+            className="relative z-10 hidden lg:flex justify-end items-center animate-slideUp lg:translate-x-4 xl:translate-x-8"
             style={{ animationDelay: "0.18s" }}
           >
             <img
               src={heroSectionImage}
               alt="Students discussing wellness support"
-              className="h-auto w-[92%] max-w-[430px] object-contain translate-y-2 drop-shadow-[0_14px_24px_rgba(22,56,74,0.18)]"
+              className="h-auto w-[115%] max-w-[720px] xl:max-w-[780px] object-contain drop-shadow-[0_14px_24px_rgba(22,56,74,0.18)]"
               loading="eager"
             />
           </div>
