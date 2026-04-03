@@ -154,10 +154,10 @@ function Navbar() {
       <div className="hidden md:flex items-center gap-4 ml-auto">
         {!user ? (
           <>
-            <Link to="/login" className={navActionClass}>
+            <Link to="/login" className="{navActionClass} text-base">
               Sign In
             </Link>
-            <Link to="/register" className="btn bg-slate-800 text-white btn-sm font-semibold px-4 text-2xl">
+            <Link to="/register" className="btn bg-slate-800 text-white btn-sm font-semibold px-4 text-base">
               Sign Up
             </Link>
           </>
