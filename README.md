@@ -58,8 +58,14 @@ cd saksham
 cd backend
 
 # Install dependencies and run
+# macOS / Linux
 ./mvnw spring-boot:run
+
+# Windows PowerShell / Command Prompt
+.\mvnw.cmd spring-boot:run
 ```
+
+Use the `spring-boot:run` goal, not `spring-boot` by itself.
 
 The backend will start on `http://localhost:8080`
 
