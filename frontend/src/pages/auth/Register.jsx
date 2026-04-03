@@ -21,12 +21,13 @@ function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const defaultPath = user?.role === "ROLE_COUNSELLOR" ? "/counsellor" : "/resources";
 
   useEffect(() => {
     if (user) {
-      navigate("/dashboard", { replace: true });
+      navigate(defaultPath, { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, defaultPath]);
 
   const validateField = (name, value) => {
     let msg = "";

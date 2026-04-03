@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { loginSuccess } from "../../features/auth/authSlice";
 import { loginUser } from "../../services/authService";
 import { authToast, updateToast } from "../../util/toast";
@@ -9,17 +9,21 @@ import { Eye, EyeOff } from "lucide-react";
 function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useSelector((state) => state.auth);
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const fromPath = location.state?.from?.pathname;
+  const defaultPath = user?.role === "ROLE_COUNSELLOR" ? "/counsellor" : "/resources";
+  const redirectPath = fromPath || defaultPath;
 
   useEffect(() => {
     if (user) {
-      navigate("/", { replace: true });
+      navigate(redirectPath, { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, redirectPath]);
 
   const validateField = (name, value) => {
     let msg = "";
@@ -55,7 +59,7 @@ function Login() {
       const res = await loginUser(form);
       dispatch(loginSuccess(res.data.token));
       updateToast.success(toastId, "Login successful! Redirecting...");
-      setTimeout(() => navigate("/"), 500);
+      setTimeout(() => navigate(redirectPath, { replace: true }), 500);
     } catch (err) {
       console.error(err);
       updateToast.error(

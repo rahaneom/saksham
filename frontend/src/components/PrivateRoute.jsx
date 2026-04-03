@@ -8,7 +8,7 @@ function PrivateRoute({ children }) {
 
   if (!token) {
     showToast.error("Please login to continue");
-    return <Navigate to="/login" state={{ from: location }} />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return children;

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import Navbar from "./components/Navbar";
@@ -9,7 +9,6 @@ import Register from "./pages/auth/Register";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 import Resources from "./pages/resources/Resources";
-import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import ChatbotPage from "./pages/chatbot/ChatbotPage";
 import PrivateRoute from "./components/PrivateRoute";
@@ -43,15 +42,6 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-
-        {/* <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          }
-        /> */}
 
         <Route
           path="/resources"
@@ -115,6 +105,8 @@ function App() {
             </RoleProtectedRoute>
           }
         />
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
       <Footer />
