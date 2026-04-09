@@ -37,8 +37,8 @@ function SlotCard({ slot, onBook }) {
             </button>
           </>
         ) : (
-            <button
-              className="btn btn-xs sm:btn-sm w-full btn-disabled py-1 rounded-md cursor-not-allowed bg-slate-500"
+          <button
+            className="btn btn-xs sm:btn-sm w-full btn-disabled py-1 rounded-md cursor-not-allowed bg-slate-500"
             disabled
           >
             Taken

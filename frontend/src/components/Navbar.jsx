@@ -121,7 +121,7 @@ function Navbar() {
 
       {/* Desktop Center Menu */}
       <div className={`hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-12  ${isHomePage ? homeTextClass : ""}`}>
-        <ThemeToggle />
+        {/* <ThemeToggle /> */}
         {user && (
           <>
             <Link to="/resources" className={navFeatureLinkClass}>

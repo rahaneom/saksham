@@ -40,13 +40,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AppointmentService {
 
+        private static final ZoneId BOOKING_ZONE = ZoneId.of("Asia/Kolkata");
+
         private final AppointmentRepository appointmentRepository;
         private final SlotRepository slotRepository;
         private final UserRepository userRepository;
 
+        private boolean isBookableSlot(Slot slot, LocalDateTime now) {
+                LocalDateTime slotStart = LocalDateTime.of(slot.getSlotDate(), slot.getStartTime());
+                return slot.isAvailable() && now.isBefore(slotStart.minusHours(1));
+        }
+
         private List<LocalDate> getAllowedBookingDates() {
 
-                LocalDate today = LocalDate.now();
+                LocalDate today = LocalDate.now(BOOKING_ZONE);
                 DayOfWeek todayDay = today.getDayOfWeek();
 
                 switch (todayDay) {
@@ -95,9 +102,10 @@ public class AppointmentService {
                 }
 
                 // 5. 1-hour cutoff
+                LocalDateTime now = LocalDateTime.now(BOOKING_ZONE);
                 LocalDateTime slotStart = LocalDateTime.of(slotDate, slot.getStartTime());
 
-                if (LocalDateTime.now().isAfter(slotStart.minusHours(1))) {
+                if (!now.isBefore(slotStart.minusHours(1))) {
                         throw new RuntimeException("Booking not allowed within 1 hour of slot");
                 }
 
@@ -287,7 +295,7 @@ public class AppointmentService {
 
         public Map<String, List<SlotDisplayResponse>> getBookingSlotsForStudent() {
 
-                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime now = LocalDateTime.now(BOOKING_ZONE);
 
                 Map<String, List<SlotDisplayResponse>> response = new LinkedHashMap<>();
 
@@ -318,8 +326,7 @@ public class AppointmentService {
                                                         return null;
                                                 }
 
-                                                boolean bookable = slot.isAvailable()
-                                                                && now.isBefore(slotStart.minusHours(1));
+                                                boolean bookable = isBookableSlot(slot, now);
 
                                                 return new SlotDisplayResponse(
                                                                 slot.getId(),
@@ -364,6 +371,10 @@ public class AppointmentService {
                                 .orElseThrow(() -> new RuntimeException("Slot not found"));
 
                 System.out.println("Slot found: " + slot.getId());
+
+                if (!isBookableSlot(slot, LocalDateTime.now())) {
+                        throw new RuntimeException("Booking not allowed within 1 hour of slot");
+                }
 
                 // Prevent duplicate booking
                 boolean exists = appointmentRepository.existsBySlot_Id(slot.getId());
