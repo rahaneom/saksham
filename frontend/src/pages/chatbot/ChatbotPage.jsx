@@ -59,10 +59,25 @@ function ChatbotPage() {
   const [userInitials, setUserInitials] = useState("U");
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const messagesEndRef = useRef(null);
+  const shouldScrollRef = useRef(false);
+  const prevMessageCountRef = useRef(0);
 
+  // Scroll within the messages box when new messages arrive (after initial load)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
+    if (shouldScrollRef.current && messages.length > prevMessageCountRef.current) {
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, 0);
+    }
+    prevMessageCountRef.current = messages.length;
+  }, [messages]);
+
+  // Enable scrolling after chat history is loaded
+  useEffect(() => {
+    if (!isLoadingHistory) {
+      shouldScrollRef.current = true;
+    }
+  }, [isLoadingHistory]);
 
   useEffect(() => {
     const user = getUserFromToken();
