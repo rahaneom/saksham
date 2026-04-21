@@ -16,7 +16,7 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const fromPath = location.state?.from?.pathname;
-  const defaultPath = user?.role === "ROLE_COUNSELLOR" ? "/counsellor" : "/resources";
+  const defaultPath = user?.role === "ROLE_COUNSELLOR" ? "/counsellor" : "/";
   const redirectPath = fromPath || defaultPath;
 
   useEffect(() => {
