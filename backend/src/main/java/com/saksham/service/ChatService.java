@@ -14,33 +14,32 @@ import com.saksham.repository.UserRepository;
 public class ChatService {
 
     private final ChatMessageRepository repo;
-    private final OpenRouterClient aiClient;
+    private final GeminiClient aiClient;
     private final UserRepository userRepository;
 
     public ChatService(ChatMessageRepository repo,
-                       OpenRouterClient aiClient,
-                       UserRepository userRepository) {
+            GeminiClient aiClient,
+            UserRepository userRepository) {
         this.repo = repo;
         this.aiClient = aiClient;
         this.userRepository = userRepository;
     }
 
-    // 🚨 Emergency keyword detection
+    // Emergency keyword detection
     private boolean isEmergency(String message) {
         String msg = message.toLowerCase();
 
         List<String> emergencyKeywords = List.of(
-            "suicide",
-            "kill myself",
-            "end my life",
-            "want to die",
-            "no reason to live",
-            "self harm",
-            "hurt myself",
-            "cut myself",
-            "can't go on",
-            "give up"
-        );
+                "suicide",
+                "kill myself",
+                "end my life",
+                "want to die",
+                "no reason to live",
+                "self harm",
+                "hurt myself",
+                "cut myself",
+                "can't go on",
+                "give up");
 
         return emergencyKeywords.stream().anyMatch(msg::contains);
     }
@@ -48,51 +47,87 @@ public class ChatService {
     // 🚨 Emergency fallback response
     private String emergencyResponse() {
         return """
-        I'm really sorry that you're feeling this way.
-        You're not alone, and help is available.
+                I'm really sorry that you're feeling this way.
+                You're not alone, and help is available.
 
-        If you are in immediate danger, please contact your local emergency number right now.
+                If you are in immediate danger, please contact your local emergency number right now.
 
-        📞 India:
-        AASRA: 91-9820466726 (24x7)
-        Kiran (Govt. of India): 1800-599-0019
+                📞 India:
+                AASRA: 91-9820466726 (24x7)
+                Kiran (Govt. of India): 1800-599-0019
 
-        If possible, consider reaching out to a trusted friend, family member,
-        or a mental health professional.
+                If possible, consider reaching out to a trusted friend, family member,
+                or a mental health professional.
 
-        I'm here with you. You can tell me more if you'd like.
-        """;
+                I'm here with you. You can tell me more if you'd like.
+                """;
     }
 
     public String handleChat(String email, String message) {
 
-        if (message == null || message.trim().isEmpty()) {
-            throw new RuntimeException("Message cannot be empty");
+        if (message == null || message.isBlank()) {
+            throw new IllegalArgumentException("Message cannot be empty");
         }
 
-        message = message.trim();
+        final String sanitizedInput = message.trim();
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        final User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("Authenticated user not found"));
 
-        String botResponse;
+        final String botResponse;
 
-        // 🚨 PRIORITY 1: Emergency handling (NO AI call)
-        if (isEmergency(message)) {
+        if (isEmergency(sanitizedInput)) {
             botResponse = emergencyResponse();
-        }
-        // 🤖 PRIORITY 2: AI response
-        else {
+        } else {
             try {
-                botResponse = aiClient.generateResponse(message);
-            } catch (Exception e) {
-                botResponse = "I'm here to listen. Please tell me more about what's on your mind.";
+                System.out.println("INPUT: " + sanitizedInput);
+
+                // Contextual window extraction (sliding window mechanism)
+                final List<ChatMessage> historicalContext = repo.findByUserAndCreatedAtAfterOrderByCreatedAtAsc(
+                        user,
+                        LocalDateTime.now().minusDays(1));
+
+                // Adaptive truncation (limit conversational memory footprint)
+                final int windowStartIndex = Math.max(historicalContext.size() - 3, 0);
+
+                final List<ChatMessage> contextualWindow = historicalContext.subList(windowStartIndex,
+                        historicalContext.size());
+
+                // Context serialization (linearized dialogue reconstruction)
+                final StringBuilder contextualPrompt = new StringBuilder();
+
+                contextualWindow.forEach(chat -> {
+                    contextualPrompt
+                            .append("User: ")
+                            .append(chat.getUserMessage())
+                            .append("\n")
+                            .append("Assistant: ")
+                            .append(chat.getBotResponse())
+                            .append("\n");
+                });
+
+                // Append current utterance
+                contextualPrompt
+                        .append("User: ")
+                        .append(sanitizedInput);
+
+                // LLM invocation with enriched conversational state
+                botResponse = aiClient.generateResponse(contextualPrompt.toString());
+
+                System.out.println("GEMINI RESPONSE: " + botResponse);
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+
+                // Graceful degradation strategy
+                return "I'm here with you. Something went wrong, but you can try again.";
             }
         }
 
-        ChatMessage chat = new ChatMessage();
+        // Persistent conversation logging (event sourcing style)
+        final ChatMessage chat = new ChatMessage();
         chat.setUser(user);
-        chat.setUserMessage(message);
+        chat.setUserMessage(sanitizedInput);
         chat.setBotResponse(botResponse);
         chat.setCreatedAt(LocalDateTime.now());
 
