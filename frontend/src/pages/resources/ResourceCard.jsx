@@ -11,7 +11,7 @@ function ResourceCard({ resource, isCounsellor, refresh }) {
     setShowConfirm(false);
     setIsDeleting(true);
     try {
-      await API.delete(`/resources/${resource.id}`);
+      await API.delete(`/api/resources/${resource.id}`);
       showToast.success("Resource deleted successfully");
       refresh();
     } catch (err) {
